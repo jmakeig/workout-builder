@@ -1,16 +1,69 @@
+<script>
+	let duration = 30;
+	let exercises = 12;
+	let warmup = 2;
+	let cooldown = 2;
+
+	// https://stackoverflow.com/a/17599562
+	function formatMinutes(minutes) {
+		const sign = minutes < 0 ? "-" : "";
+		const min = Math.floor(Math.abs(minutes));
+		const sec = Math.floor((Math.abs(minutes) * 60) % 60);
+		return (
+			sign + (min < 10 ? "0" : "") + min + ":" + (sec < 10 ? "0" : "") + sec
+		);
+	}
+</script>
+
+<svelte:head>
+	<title>Create a workout {new Date().getSeconds()}</title>
+</svelte:head>
 <h1>Create a workout</h1>
 <form action="workout" method="post">
 	<div>
-		<label>Duration <input type="number" name="duration" value="30"/></label> minutes
+		<label for="duration">Duration</label>
+		<input
+			type="number"
+			id="duration"
+			name="duration"
+			bind:value={duration}
+			min="0"
+			max="120"
+			step="5"
+		/>
+		> minutes
 	</div>
 	<div>
-		<label>Sets <input type="number" name="sets" value="12"/></label> 
+		<label for="exercises">Exercises</label>
+		<input
+			type="number"
+			id="exercises"
+			name="exercises"
+			bind:value={exercises}
+		/>
 	</div>
 	<div>
-		<label>Warm up <input type="number" name="warmup" value="2"/></label> minutes
+		<label for="warmup">Warm up</label><input
+			type="number"
+			id="warmup"
+			name="warmup"
+			bind:value={warmup}
+			min="0"
+			max={duration}
+		/> minutes
 	</div>
 	<div>
-		<label>Cool down <input type="number" name="cooldown" value="2"/></label> minutes
+		<label for="cooldown">Cool down</label><input
+			type="number"
+			id="cooldown"
+			name="cooldown"
+			bind:value={cooldown}
+			min="0"
+			max={duration}
+		/> minutes
+	</div>
+	<div>
+		{formatMinutes((duration - warmup - cooldown) / exercises)} minutes per exercise
 	</div>
 	<div>
 		<button type="submit" formaction="build">Build…</button>
