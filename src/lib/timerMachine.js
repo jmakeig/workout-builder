@@ -4,9 +4,9 @@ export const timerMachine = createMachine({
 	/*
 	context: {
 		timer: {
-			elapsed: 0,
-			duration: 15,
-			interval: 0.1
+			elapsed: 0,          // milliseconds
+			duration: 15 * 1000, // milliseconds
+			interval: 0.1 * 1000 // milliseconds
 		}
 	},
 	*/
@@ -17,7 +17,7 @@ export const timerMachine = createMachine({
 				src: (context) => (callback) => {
 					const interval = setInterval(() => {
 						callback("TICK");
-					}, 1000 * context.timer.interval);
+					}, context.timer.interval);
 
 					return () => {
 						clearInterval(interval);
