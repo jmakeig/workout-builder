@@ -41,7 +41,7 @@ export const timerMachine = createMachine({
 						return {
 							timer: {
 								...context.timer,
-								elapsed: +(context.timer.elapsed + context.timer.interval) //.toFixed(2)
+								elapsed: +(context.timer.elapsed + context.timer.interval)
 							}
 						};
 					})
