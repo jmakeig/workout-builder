@@ -1,6 +1,5 @@
 <script>
-	export let duration;
-	export let elapsed;
+	export let config;
 
 	import { createMachine, interpret } from "xstate";
 	const machine = createMachine({
@@ -49,10 +48,16 @@
 		return () => service.stop();
 	});
 
-	import { onMount } from "svelte";
+	import { onMount, beforeUpdate } from "svelte";
 	onMount(() => {
+		//service.send("start");
+	});
+	beforeUpdate(() => {
+		console.log("restarting service", config);
+		service.start();
 		service.send("start");
 	});
+
 	/*
 	export function start(handler) {
 		const interval = 0.1 * 1000;
@@ -71,4 +76,5 @@
 
 <div style="background: #eee; padding: 0.5em;">
 	{$status.value}
+	<pre>{JSON.stringify(config)}</pre>
 </div>

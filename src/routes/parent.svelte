@@ -3,6 +3,23 @@
 	const machine = createMachine({
 		id: "parent",
 		context: {
+			cicruits: [
+				{
+					duration: 5 * 1000
+				},
+				{
+					duration: 4 * 1000
+				},
+				{
+					duration: 3 * 1000
+				},
+				{
+					duration: 2 * 1000
+				},
+				{
+					duration: 10 * 1000
+				}
+			],
 			current: null
 		},
 		initial: "idle",
@@ -22,13 +39,19 @@
 							current: (context, event) =>
 								null === context.current ? 0 : context.current + 1
 						}),
-						cond: (context, event) => context.current < 5
+						cond: (context, event) =>
+							context.current < context.cicruits.length - 1
 					},
 					{ target: "done" }
 				]
 			},
 			exercising: {
 				// do timer
+				on: {
+					next: {
+						target: "next"
+					}
+				}
 			},
 			done: {
 				type: "final"
@@ -36,16 +59,12 @@
 		}
 	});
 
-	const service = interpret(
-		machine
-		//.withConfig(additionalConfig)
-		//.withContext({ ...machine.context, ...initialContext })
-	);
+	const service = interpret(machine);
 
 	import { createEventDispatcher } from "svelte";
 	const fire = createEventDispatcher();
 
-	import { readable } from "svelte/store";
+	import { readable, derived } from "svelte/store";
 	const status = readable(machine.initialState, (set) => {
 		service
 			.onTransition((state) => {
@@ -58,6 +77,11 @@
 		return () => service.stop();
 	});
 
+	const exercise = derived(
+		status,
+		($status) => $status.context.cicruits[$status.context.current]
+	);
+
 	import { onMount } from "svelte";
 	onMount(() => {
 		service.send("start");
@@ -66,8 +90,12 @@
 	import Child from "./child.svelte";
 </script>
 
-<h1>Parent</h1>
-
-{#if $status.matches("exercising")}
-	<Child duration={5} elapsed={0} on:done={(evt) => console.log(evt)} />
-{/if}
+<h1>Parent: {$status.value}</h1>
+<pre>{JSON.stringify($exercise)}</pre>
+<Child
+	config={$exercise}
+	on:done={(evt) => {
+		console.log("recieved done");
+		service.send("next");
+	}}
+/>
