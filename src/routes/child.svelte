@@ -21,7 +21,12 @@
 				}
 			},
 			done: {
-				type: "final"
+				//type: "final"
+				on: {
+					reset: {
+						target: "idle"
+					}
+				}
 			}
 		}
 	});
@@ -40,38 +45,23 @@
 		service
 			.onTransition((state) => {
 				if (false !== state.changed) {
+					console.log("child state changed", state.value);
 					set(state);
+					if (state.matches("done")) {
+						console.log("firing done");
+						fire("done");
+					}
 				}
 			})
-			.onDone((state) => fire("done"))
 			.start();
 		return () => service.stop();
 	});
 
-	import { onMount, beforeUpdate } from "svelte";
-	onMount(() => {
-		//service.send("start");
-	});
+	import { beforeUpdate } from "svelte";
 	beforeUpdate(() => {
-		console.log("restarting service", config);
-		service.start();
-		service.send("start");
+		console.warn("updating child", config);
+		service.send(["reset", "start"]);
 	});
-
-	/*
-	export function start(handler) {
-		const interval = 0.1 * 1000;
-		const timeout = setInterval(() => {
-			if (elapsed <= duration * 1000) {
-				elapsed += interval;
-			} else {
-				clearInterval(timeout);
-				handler();
-			}
-		}, interval);
-		return () => clearInterval(timeout);
-	}
-	*/
 </script>
 
 <div style="background: #eee; padding: 0.5em;">

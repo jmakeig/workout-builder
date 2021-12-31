@@ -61,14 +61,12 @@
 
 	const service = interpret(machine);
 
-	import { createEventDispatcher } from "svelte";
-	const fire = createEventDispatcher();
-
 	import { readable, derived } from "svelte/store";
 	const status = readable(machine.initialState, (set) => {
 		service
 			.onTransition((state) => {
 				if (false !== state.changed) {
+					console.log("parent state change", state.value);
 					set(state);
 				}
 			})
@@ -91,7 +89,7 @@
 </script>
 
 <h1>Parent: {$status.value}</h1>
-<pre>{JSON.stringify($exercise)}</pre>
+<!-- <pre>{JSON.stringify($exercise)}</pre> -->
 <Child
 	config={$exercise}
 	on:done={(evt) => {
