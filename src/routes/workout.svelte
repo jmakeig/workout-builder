@@ -88,10 +88,10 @@
 				circuits: [
 					[
 						{ exercise: "jog", duration: 2 * 1000 },
-						{ exercise: "march", duration: 3 * 1000 },
-						{ exercise: "cross-tap", duration: 4 * 1000 },
-						{ exercise: "cross-jack", duration: 5 * 1000 },
-						{ exercise: "skater", duration: 6 * 1000 }
+						{ exercise: "march", duration: 2 * 1000 },
+						{ exercise: "cross-tap", duration: 2 * 1000 },
+						{ exercise: "cross-jack", duration: 2 * 1000 },
+						{ exercise: "skater", duration: 2 * 1000 }
 					]
 				].flat() // NOTE!
 			},
@@ -102,21 +102,39 @@
 			idle: {
 				on: {
 					start: {
-						target: "exercising"
+						target: "exercising",
+						actions: assign({
+							current: (context, event) => increment(context.current)
+						})
 					}
 				}
 			},
-			exercising: {
-				entry: [
-					assign({
-						current: (context, event) => increment(context.current)
-					}),
-					send({ type: "resume" }, { to: "timerService" })
+			transitioning: {
+				after: [
+					{
+						delay: 2000,
+						target: "exercising"
+					}
 				],
+				entry: assign({
+					current: (context, event) => increment(context.current)
+				})
+			},
+			exercising: {
+				entry: send({ type: "resume" }, { to: "timerService" }),
 				invoke: {
 					src: timerMachine,
 					id: "timerService",
 					// https://github.com/statelyai/xstate/issues/327#issuecomment-475699760
+					/*
+				data: (context, event) => ({
+					...timerMachine.context, // initial context
+					timer: {
+						...timerMachine.context.timer,
+						duration: context.workout.circuits[context.current].duration * 1000
+					}
+				}),
+				*/
 					data: (context, event) =>
 						initTimer(
 							timerMachine.context,
@@ -124,7 +142,7 @@
 						),
 					onDone: [
 						{
-							target: "exercising",
+							target: "transitioning",
 							cond: (context, event) =>
 								context.current < context.workout.circuits.length - 1
 						},
@@ -220,6 +238,9 @@
 	<Print object={$currentExercise} />
 
 	<Timer duration={$currentExercise.duration} {elapsed} />
+{/if}
+{#if $status.matches("transitioning")}
+	Transition…
 {/if}
 {#if $status.matches("done")}
 	Done!
