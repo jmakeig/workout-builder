@@ -87,11 +87,11 @@
 			workout: {
 				circuits: [
 					[
-						{ exercise: "jog", duration: 30 * 1000 },
-						{ exercise: "march", duration: 30 * 1000 },
-						{ exercise: "cross-tap", duration: 30 * 1000 },
-						{ exercise: "cross-jack", duration: 30 * 1000 },
-						{ exercise: "skater", duration: 30 * 1000 }
+						{ exercise: "jog", duration: 10 * 1000 },
+						{ exercise: "march", duration: 10 * 1000 },
+						{ exercise: "cross-tap", duration: 10 * 1000 },
+						{ exercise: "cross-jack", duration: 10 * 1000 },
+						{ exercise: "skater", duration: 10 * 1000 }
 					]
 				].flat() // NOTE!
 			},
@@ -174,10 +174,18 @@
 				harder: ""
 			}
 		},
-		"cross-tap": {},
-		jog: {},
-		march: {},
-		skater: {}
+		"cross-tap": {
+			name: "Cross Tap"
+		},
+		jog: {
+			name: "Jog"
+		},
+		march: {
+			name: "March"
+		},
+		skater: {
+			name: "Skater"
+		}
 	};
 
 	const service = interpret(workoutMachine); //.withContext(workout));
@@ -197,11 +205,14 @@
 	});
 
 	const currentExercise = derived(status, ($status) => {
+		const instance =
+			null === $status.context.current
+				? null
+				: $status.context.workout.circuits[$status.context.current];
 		return {
-			exercise:
-				null === $status.context.current
-					? null
-					: $status.context.workout.circuits[$status.context.current],
+			instance,
+			//info: instance && instance.exercise ? exercises[instance.exercise] : null,
+			info: instance ? exercises[instance.exercise] : null,
 			is: $status.context.current,
 			of: $status.context.workout.circuits.length
 		};
@@ -210,6 +221,7 @@
 	import Timer from "./_components/timer.svelte";
 
 	import Print from "./_components/print.svelte";
+	/*
 	$: console.log("current", $status.context.current);
 	$: console.log("circuits", $status.context.workout.circuits);
 	$: console.log(
@@ -218,7 +230,7 @@
 			? null
 			: $status.context.workout.circuits[$status.context.current]
 	);
-
+  */
 	function num(number) {
 		return new Intl.NumberFormat().format(number);
 	}
@@ -232,13 +244,13 @@
 {#if $status.matches("idle")}
 	<button on:click={(evt) => service.send("start")}>Start</button>
 {/if}
-<!-- <Print object={$status.context} /> -->
 
 {#if $status.matches("exercising") || $status.matches("transitioning")}
-	<!-- <Print object={$currentExercise} /> -->
+	<Print object={$currentExercise} />
+	<h1>{$currentExercise.info.name}</h1>
 	<div>{num($currentExercise.is + 1)} of {num($currentExercise.of)}</div>
 	<Timer
-		duration={$currentExercise.exercise.duration}
+		duration={$currentExercise.instance.duration}
 		{elapsed}
 		interval={1 * 1000}
 	/>

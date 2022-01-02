@@ -8,8 +8,8 @@
 	$: progress = Math.min(1.0, (elapsed + interval) / duration);
 </script>
 
-<div>{(elapsed / 1000).toFixed(2)}</div>
-<div>{((elapsed + interval) / duration).toFixed(2)}</div>
+<div>{((duration - elapsed) / 1000).toFixed(0)}</div>
+<!-- <div>{((elapsed + interval) / duration).toFixed(2)}</div> -->
 <div
 	class="timer"
 	style="--duration: {duration}; --interval: calc({interval /
