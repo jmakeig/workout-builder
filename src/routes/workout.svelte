@@ -1,7 +1,7 @@
 <script>
 	let elapsed;
 
-	import { createMachine, assign, send, interpret } from "xstate";
+	import { createMachine, assign, send, interpret, matchesState } from "xstate";
 
 	const timerMachine = createMachine({
 		context: {
@@ -87,11 +87,11 @@
 			workout: {
 				circuits: [
 					[
-						{ exercise: "jog", duration: 2 },
-						{ exercise: "march", duration: 2 },
-						{ exercise: "cross-tap", duration: 2 },
-						{ exercise: "cross-jack", duration: 2 },
-						{ exercise: "skater", duration: 2 }
+						{ exercise: "jog", duration: 2 * 1000 },
+						{ exercise: "march", duration: 3 * 1000 },
+						{ exercise: "cross-tap", duration: 4 * 1000 },
+						{ exercise: "cross-jack", duration: 5 * 1000 },
+						{ exercise: "skater", duration: 6 * 1000 }
 					]
 				].flat() // NOTE!
 			},
@@ -120,7 +120,7 @@
 					data: (context, event) =>
 						initTimer(
 							timerMachine.context,
-							context.workout.circuits[context.current].duration * 1000
+							context.workout.circuits[context.current].duration
 						),
 					onDone: [
 						{
@@ -155,22 +155,21 @@
 		};
 	}
 
-	/*
-	const workout = {
-		workout: {
-			circuits: [
-				[
-					{ exercise: "jog", duration: 2 },
-					{ exercise: "march", duration: 2 },
-					{ exercise: "cross-tap", duration: 2 },
-					{ exercise: "cross-jack", duration: 2 },
-					{ exercise: "skater", duration: 2 }
-				]
-			].flat() // NOTE!
+	const exercises = {
+		"cross-jack": {
+			name: "Cross Jack",
+			description:
+				"Two full jumping jacks. Hands behind head. Touch elbow to opposite knee.",
+			modifications: {
+				easier: "",
+				harder: ""
+			}
 		},
-		current: null
+		"cross-tap": {},
+		jog: {},
+		march: {},
+		skater: {}
 	};
-	*/
 
 	const service = interpret(workoutMachine); //.withContext(workout));
 
@@ -188,12 +187,23 @@
 		return () => service.stop();
 	});
 
-	// const exercise = derived(
-	// 	status,
-	// 	($status) => $status.context.cicruits[$status.context.current]
-	// );
+	const currentExercise = derived(status, ($status) =>
+		null === $status.context.current
+			? null
+			: $status.context.workout.circuits[$status.context.current]
+	);
 
 	import Timer from "./_components/timer.svelte";
+
+	import Print from "./_components/print.svelte";
+	$: console.log("current", $status.context.current);
+	$: console.log("circuits", $status.context.workout.circuits);
+	$: console.log(
+		"exercise",
+		null === $status.context.current
+			? null
+			: $status.context.workout.circuits[$status.context.current]
+	);
 </script>
 
 <svelte:head>
@@ -201,7 +211,16 @@
 </svelte:head>
 
 <h1>Workout</h1>
-<button on:click={(evt) => service.send("start")}>Start</button>
-<pre>{JSON.stringify($status.context, null, 2)}</pre>
-<div>Elapsed: {elapsed}</div>
-<Timer duration={2 * 1000} {elapsed} />
+{#if $status.matches("idle")}
+	<button on:click={(evt) => service.send("start")}>Start</button>
+{/if}
+<!-- <Print object={$status.context} /> -->
+
+{#if $status.matches("exercising")}
+	<Print object={$currentExercise} />
+
+	<Timer duration={$currentExercise.duration} {elapsed} />
+{/if}
+{#if $status.matches("done")}
+	Done!
+{/if}
