@@ -12,7 +12,7 @@
 <div>{((elapsed + interval) / duration).toFixed(2)}</div>
 <div
 	class="timer"
-	style="--interval: calc({interval /
+	style="--duration: {duration}; --interval: calc({interval /
 		1000} * 1s); --progress: {progress.toFixed(2)}"
 >
 	<svg
@@ -23,7 +23,14 @@
 		class="circles"
 	>
 		<circle r="40" cx="50" cy="50" pathLength="1" />
-		<circle class="progress" r="40" cx="50" cy="50" pathLength="1" />
+		<circle
+			class="progress"
+			class:reset={0.0 === elapsed}
+			r="40"
+			cx="50"
+			cy="50"
+			pathLength="1"
+		/>
 	</svg>
 </div>
 
@@ -53,5 +60,10 @@
 		stroke-dashoffset: var(--progress, 0);
 		stroke-dasharray: 1 1;
 		stroke-width: 1.1px;
+	}
+
+	.progress.reset {
+		transition: none;
+		stroke-dashoffset: calc(var(--interval) / var(--duration));
 	}
 </style>

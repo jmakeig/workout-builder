@@ -15,12 +15,12 @@
 		initial: "paused",
 		states: {
 			running: {
+				entry: "updateElapsed", // elasped = 0
 				invoke: {
 					src: (context) => (callback) => {
 						const interval = setInterval(() => {
 							callback("TICK");
 						}, context.timer.interval);
-
 						return () => {
 							clearInterval(interval);
 						};
@@ -87,11 +87,11 @@
 			workout: {
 				circuits: [
 					[
-						{ exercise: "jog", duration: 2 * 1000 },
-						{ exercise: "march", duration: 2 * 1000 },
-						{ exercise: "cross-tap", duration: 2 * 1000 },
-						{ exercise: "cross-jack", duration: 2 * 1000 },
-						{ exercise: "skater", duration: 2 * 1000 }
+						{ exercise: "jog", duration: 10 * 1000 },
+						{ exercise: "march", duration: 10 * 1000 },
+						{ exercise: "cross-tap", duration: 10 * 1000 }
+						// { exercise: "cross-jack", duration: 2 * 1000 },
+						// { exercise: "skater", duration: 2 * 1000 }
 					]
 				].flat() // NOTE!
 			},
@@ -234,10 +234,9 @@
 {/if}
 <!-- <Print object={$status.context} /> -->
 
-{#if $status.matches("exercising")}
+{#if $status.matches("exercising") || $status.matches("transitioning")}
 	<Print object={$currentExercise} />
-
-	<Timer duration={$currentExercise.duration} {elapsed} />
+	<Timer duration={$currentExercise.duration} {elapsed} interval={1 * 1000} />
 {/if}
 {#if $status.matches("transitioning")}
 	Transition…
