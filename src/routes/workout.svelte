@@ -87,11 +87,11 @@
 			workout: {
 				circuits: [
 					[
-						{ exercise: "jog", duration: 10 * 1000 },
-						{ exercise: "march", duration: 10 * 1000 },
-						{ exercise: "cross-tap", duration: 10 * 1000 }
-						// { exercise: "cross-jack", duration: 2 * 1000 },
-						// { exercise: "skater", duration: 2 * 1000 }
+						{ exercise: "jog", duration: 30 * 1000 },
+						{ exercise: "march", duration: 30 * 1000 },
+						{ exercise: "cross-tap", duration: 30 * 1000 },
+						{ exercise: "cross-jack", duration: 30 * 1000 },
+						{ exercise: "skater", duration: 30 * 1000 }
 					]
 				].flat() // NOTE!
 			},
@@ -112,11 +112,11 @@
 			transitioning: {
 				after: [
 					{
-						delay: 2000,
+						delay: 1000,
 						target: "exercising"
 					}
 				],
-				entry: assign({
+				exit: assign({
 					current: (context, event) => increment(context.current)
 				})
 			},
@@ -126,15 +126,6 @@
 					src: timerMachine,
 					id: "timerService",
 					// https://github.com/statelyai/xstate/issues/327#issuecomment-475699760
-					/*
-				data: (context, event) => ({
-					...timerMachine.context, // initial context
-					timer: {
-						...timerMachine.context.timer,
-						duration: context.workout.circuits[context.current].duration * 1000
-					}
-				}),
-				*/
 					data: (context, event) =>
 						initTimer(
 							timerMachine.context,
@@ -205,11 +196,16 @@
 		return () => service.stop();
 	});
 
-	const currentExercise = derived(status, ($status) =>
-		null === $status.context.current
-			? null
-			: $status.context.workout.circuits[$status.context.current]
-	);
+	const currentExercise = derived(status, ($status) => {
+		return {
+			exercise:
+				null === $status.context.current
+					? null
+					: $status.context.workout.circuits[$status.context.current],
+			is: $status.context.current,
+			of: $status.context.workout.circuits.length
+		};
+	});
 
 	import Timer from "./_components/timer.svelte";
 
@@ -222,6 +218,10 @@
 			? null
 			: $status.context.workout.circuits[$status.context.current]
 	);
+
+	function num(number) {
+		return new Intl.NumberFormat().format(number);
+	}
 </script>
 
 <svelte:head>
@@ -235,8 +235,13 @@
 <!-- <Print object={$status.context} /> -->
 
 {#if $status.matches("exercising") || $status.matches("transitioning")}
-	<Print object={$currentExercise} />
-	<Timer duration={$currentExercise.duration} {elapsed} interval={1 * 1000} />
+	<!-- <Print object={$currentExercise} /> -->
+	<div>{num($currentExercise.is + 1)} of {num($currentExercise.of)}</div>
+	<Timer
+		duration={$currentExercise.exercise.duration}
+		{elapsed}
+		interval={1 * 1000}
+	/>
 {/if}
 {#if $status.matches("transitioning")}
 	Transition…
