@@ -2,102 +2,56 @@
 <script>
 	export let duration;
 	export let elapsed = 0;
+	export let interval;
+	let progress;
 
-	function progress(d, e) {
-		const f = (d - e) / d;
-		return f;
-		//return f - (1 / d) * (1 - f);
-	}
-	const circ = 2 * Math.PI * 45;
+	$: progress = Math.min(1.0, (elapsed + interval) / duration);
 </script>
 
-<div>
-	Duration: {(duration / 1000).toFixed(2)}
-	Elapsed: {(elapsed / 1000).toFixed(2)}
-</div>
-<div>
-	{(progress(duration, elapsed) * 283).toFixed(0)}
-</div>
-
-<div class="base-timer">
+<div>{(elapsed / 1000).toFixed(2)}</div>
+<div>{((elapsed + interval) / duration).toFixed(2)}</div>
+<div
+	class="timer"
+	style="--interval: calc({interval /
+		1000} * 1s); --progress: {progress.toFixed(2)}"
+>
 	<svg
-		class="base-timer__svg"
 		viewBox="0 0 100 100"
-		xmlns="http://www.w3.org/2000/svg"
+		width="100"
+		height="100"
+		fill="none"
+		class="circles"
 	>
-		<g class="base-timer__circle">
-			<circle class="base-timer__path-elapsed" cx="50" cy="50" r="45" />
-			<path
-				id="base-timer-path-remaining"
-				stroke-dasharray={(progress(duration, elapsed) * circ).toFixed(0) +
-					" " +
-					circ.toFixed(0)}
-				class="base-timer__path-remaining {'green'}"
-				d="
-          M 50, 50
-          m -45, 0
-          a 45,45 0 1,0 90,0
-          a 45,45 0 1,0 -90,0
-        "
-			/>
-		</g>
+		<circle r="40" cx="50" cy="50" pathLength="1" />
+		<circle class="progress" r="40" cx="50" cy="50" pathLength="1" />
 	</svg>
-	<span id="base-timer-label" class="base-timer__label"
-		>{((duration - elapsed) / 1000).toFixed(2)}</span
-	>
 </div>
 
 <style>
-	.base-timer {
-		position: relative;
-		width: 300px;
-		height: 300px;
+	.circles {
+		transform: rotate(-0.25turn);
+		height: 100%;
+		width: 100%;
+		pointer-events: none;
 	}
 
-	.base-timer__svg {
-		transform: scaleX(-1);
-	}
-
-	.base-timer__circle {
-		fill: none;
-		stroke: none;
-	}
-
-	.base-timer__path-elapsed {
-		stroke-width: 7px;
-		stroke: grey;
-	}
-
-	.base-timer__path-remaining {
-		stroke-width: 7px;
+	circle {
+		stroke: #ccc;
+		stroke-linejoin: round;
 		stroke-linecap: round;
-		transform: rotate(90deg);
-		transform-origin: center;
-		/* transition: 0.1s linear stroke-dasharray; */
-		fill-rule: nonzero;
-		stroke: currentColor;
+		stroke-width: 1px;
 	}
 
-	.base-timer__path-remaining.green {
-		color: rgb(65, 184, 131);
+	.timer {
+		width: 500px;
+		height: 500px;
 	}
 
-	.base-timer__path-remaining.orange {
-		color: orange;
-	}
-
-	.base-timer__path-remaining.red {
-		color: red;
-	}
-
-	.base-timer__label {
-		position: absolute;
-		width: 300px;
-		height: 300px;
-		top: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 48px;
+	.progress {
+		transition: stroke-dashoffset var(--interval) linear;
+		stroke: green;
+		stroke-dashoffset: var(--progress, 0);
+		stroke-dasharray: 1 1;
+		stroke-width: 1.1px;
 	}
 </style>
