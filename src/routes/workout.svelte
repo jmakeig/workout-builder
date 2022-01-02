@@ -1,6 +1,8 @@
 <script>
 	import { createMachine, assign, send, interpret } from "xstate";
 
+	let elapsed;
+
 	const timerMachine = createMachine({
 		context: {
 			timer: {
@@ -35,14 +37,17 @@
 						target: "paused"
 					},
 					TICK: {
-						actions: assign((context) => {
-							return {
-								timer: {
-									...context.timer,
-									elapsed: +(context.timer.elapsed + context.timer.interval)
-								}
-							};
-						})
+						actions: [
+							assign((context) => {
+								return {
+									timer: {
+										...context.timer,
+										elapsed: +(context.timer.elapsed + context.timer.interval)
+									}
+								};
+							}),
+							(context, event) => (elapsed = context.timer.elapsed)
+						]
 					}
 				}
 			},
@@ -108,15 +113,6 @@
 					src: timerMachine,
 					id: "timerService",
 					// https://github.com/statelyai/xstate/issues/327#issuecomment-475699760
-					/*
-				data: (context, event) => ({
-					...timerMachine.context, // initial context
-					timer: {
-						...timerMachine.context.timer,
-						duration: context.workout.circuits[context.current].duration * 1000
-					}
-				}),
-				*/
 					data: (context, event) =>
 						initTimer(
 							timerMachine.context,
@@ -180,3 +176,4 @@
 <h1>Workout</h1>
 <button on:click={(evt) => service.send("start")}>Start</button>
 <pre>{JSON.stringify($status.context, null, 2)}</pre>
+<div>Elapsed: {elapsed}</div>
