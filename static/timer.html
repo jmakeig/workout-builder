@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Sandbox</title>
+		<meta charset="UTF-8" />
+		<style>
+			.circles {
+				transform: rotate(-0.25turn);
+				height: 100%;
+				width: 100%;
+				pointer-events: none;
+			}
+
+			circle {
+				stroke: black;
+				stroke-linejoin: round;
+				stroke-linecap: round;
+				stroke-width: 1px;
+			}
+
+			.timer {
+			}
+
+			.progress {
+				transition: stroke-dashoffset var(--interval) linear;
+				stroke: green;
+				stroke-dashoffset: var(--progress, 0);
+				stroke-dasharray: 1 1;
+				stroke-width: 1.1px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="clock">X</div>
+		<button onclick="start()">Start</button>
+		<div class="timer" style="">
+			<svg
+				viewBox="0 0 100 100"
+				width="100"
+				height="100"
+				fill="none"
+				class="circles"
+			>
+				<circle r="40" cx="50" cy="50" pathLength="1" />
+				<circle class="progress" r="40" cx="50" cy="50" pathLength="1" />
+			</svg>
+		</div>
+	</body>
+	<script>
+		function start() {
+			let duration = 10 * 1000;
+			let interval = 0.1 * 1000;
+			let elapsed = 0;
+			const timer = document.querySelector(".timer");
+			const clock = document.querySelector(".clock");
+
+			// start offset
+			timer.style.setProperty(
+				"--interval",
+				`calc(${(interval / 1000).toFixed(2)} * 1s)`
+			);
+			timer.style.setProperty(
+				"--progress",
+				((elapsed + interval) / duration).toFixed(2)
+			);
+			const auto = setInterval(() => {
+				console.log(((elapsed + interval) / duration).toFixed(2));
+				elapsed += interval;
+				// end offset
+				if (elapsed <= duration - interval) {
+					timer.style.setProperty(
+						"--progress",
+						((elapsed + interval) / duration).toFixed(2)
+					);
+				}
+				clock.innerText = `${((duration - elapsed) / 1000).toFixed(2)}`;
+				if (elapsed >= duration) clearInterval(auto);
+			}, interval);
+		}
+	</script>
+</html>
