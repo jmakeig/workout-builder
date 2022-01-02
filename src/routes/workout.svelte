@@ -1,7 +1,7 @@
 <script>
-	import { createMachine, assign, send, interpret } from "xstate";
-
 	let elapsed;
+
+	import { createMachine, assign, send, interpret } from "xstate";
 
 	const timerMachine = createMachine({
 		context: {
@@ -46,7 +46,7 @@
 									}
 								};
 							}),
-							(context, event) => (elapsed = context.timer.elapsed)
+							"updateElapsed"
 						]
 					}
 				}
@@ -74,6 +74,10 @@
 			completed: {
 				type: "final"
 			}
+		}
+	}).withConfig({
+		actions: {
+			updateElapsed: (context, event) => (elapsed = context.timer.elapsed)
 		}
 	});
 
@@ -151,7 +155,24 @@
 		};
 	}
 
-	const service = interpret(workoutMachine);
+	/*
+	const workout = {
+		workout: {
+			circuits: [
+				[
+					{ exercise: "jog", duration: 2 },
+					{ exercise: "march", duration: 2 },
+					{ exercise: "cross-tap", duration: 2 },
+					{ exercise: "cross-jack", duration: 2 },
+					{ exercise: "skater", duration: 2 }
+				]
+			].flat() // NOTE!
+		},
+		current: null
+	};
+	*/
+
+	const service = interpret(workoutMachine); //.withContext(workout));
 
 	import { readable, derived } from "svelte/store";
 	const status = readable(workoutMachine.initialState, (set) => {
@@ -171,9 +192,16 @@
 	// 	status,
 	// 	($status) => $status.context.cicruits[$status.context.current]
 	// );
+
+	import Timer from "./_components/timer.svelte";
 </script>
+
+<svelte:head>
+	<title>Workout</title>
+</svelte:head>
 
 <h1>Workout</h1>
 <button on:click={(evt) => service.send("start")}>Start</button>
 <pre>{JSON.stringify($status.context, null, 2)}</pre>
 <div>Elapsed: {elapsed}</div>
+<Timer duration={2 * 1000} {elapsed} />

@@ -1,44 +1,22 @@
 <!-- Forked from https://css-tricks.com/how-to-create-an-animated-countdown-timer-with-html-css-and-javascript/ -->
-
 <script>
-	import { useMachine } from "$lib/useMachine";
-	import { timerMachine } from "$lib/timerMachine";
-
-	export let duration = 30; // seconds
-
-	const { status, timer, dispatch } = useMachine(timerMachine, {
-		timer: {
-			elapsed: 0, // milliseconds
-			duration: duration * 1000, // milliseconds
-			interval: 0.1 * 1000 // milliseconds
-		}
-	});
-	$: console.log("$timer", $timer);
+	export let duration;
+	export let elapsed = 0;
 
 	function progress(d, e) {
 		const f = (d - e) / d;
 		return f;
 		//return f - (1 / d) * (1 - f);
 	}
-
 	const circ = 2 * Math.PI * 45;
 </script>
 
 <div>
-	Duration: {($timer.duration / 1000).toFixed(2)} Elapsed: {(
-		$timer.elapsed / 1000
-	).toFixed(2)}
+	Duration: {(duration / 1000).toFixed(2)}
+	Elapsed: {(elapsed / 1000).toFixed(2)}
 </div>
-{#if $status.matches("paused")}
-	<button on:click={(event) => dispatch("resume")}>Play</button>
-{:else if $status.matches("running")}
-	<button on:click={(event) => dispatch("pause")}>Pause</button>
-{:else}
-	<button>done</button>
-{/if}
-<div class="status">{$status.toStrings().pop()}</div>
 <div>
-	{(progress($timer.duration, $timer.elapsed) * 283).toFixed(0)}
+	{(progress(duration, elapsed) * 283).toFixed(0)}
 </div>
 
 <div class="base-timer">
@@ -51,9 +29,7 @@
 			<circle class="base-timer__path-elapsed" cx="50" cy="50" r="45" />
 			<path
 				id="base-timer-path-remaining"
-				stroke-dasharray={(
-					progress($timer.duration, $timer.elapsed) * circ
-				).toFixed(0) +
+				stroke-dasharray={(progress(duration, elapsed) * circ).toFixed(0) +
 					" " +
 					circ.toFixed(0)}
 				class="base-timer__path-remaining {'green'}"
@@ -67,7 +43,7 @@
 		</g>
 	</svg>
 	<span id="base-timer-label" class="base-timer__label"
-		>{(($timer.duration - $timer.elapsed) / 1000).toFixed(2)}</span
+		>{((duration - elapsed) / 1000).toFixed(2)}</span
 	>
 </div>
 
@@ -97,7 +73,7 @@
 		stroke-linecap: round;
 		transform: rotate(90deg);
 		transform-origin: center;
-		transition: 0.1s linear stroke-dasharray;
+		/* transition: 0.1s linear stroke-dasharray; */
 		fill-rule: nonzero;
 		stroke: currentColor;
 	}
