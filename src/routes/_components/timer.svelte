@@ -6,15 +6,25 @@
 	let progress;
 
 	$: progress = Math.min(1.0, (elapsed + interval) / duration);
+
+	function millisToMinutes(millis) {
+		const s = millis / 1000;
+		const minutes = Math.trunc(s / 60);
+		const seconds = s % 60;
+		const f = (n) => n.toFixed(0).padStart(2, "0");
+		return [f(minutes), f(seconds)].join(":");
+	}
 </script>
 
-<div>{((duration - elapsed) / 1000).toFixed(0)}</div>
 <!-- <div>{((elapsed + interval) / duration).toFixed(2)}</div> -->
 <div
 	class="timer"
 	style="--duration: {duration}; --interval: calc({interval /
 		1000} * 1s); --progress: {progress.toFixed(2)}"
 >
+	<div style="font-variant-numeric: tabular-nums;">
+		{millisToMinutes(duration - elapsed)}
+	</div>
 	<svg
 		viewBox="0 0 100 100"
 		width="100"
