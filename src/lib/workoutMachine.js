@@ -2,6 +2,7 @@ import { createMachine, assign, send } from "xstate";
 
 export const workoutMachine = createMachine({
 	id: "workout",
+	/*
 	context: {
 		workout: {
 			circuits: [
@@ -20,6 +21,7 @@ export const workoutMachine = createMachine({
 			interval: 0.1 * 1000 // milliseconds
 		}
 	},
+	*/
 	initial: "idle",
 	states: {
 		idle: {
