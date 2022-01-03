@@ -6,12 +6,14 @@
 
 	// https://stackoverflow.com/a/17599562
 	function formatMinutes(minutes) {
+		function pad(n) {
+			if (n < 10) return "0" + String(n);
+			return String(n);
+		}
 		const sign = minutes < 0 ? "-" : "";
 		const min = Math.floor(Math.abs(minutes));
 		const sec = Math.floor((Math.abs(minutes) * 60) % 60);
-		return (
-			sign + (min < 10 ? "0" : "") + min + ":" + (sec < 10 ? "0" : "") + sec
-		);
+		return sign + pad(min) + ":" + pad(sec);
 	}
 </script>
 
