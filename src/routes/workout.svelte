@@ -30,11 +30,11 @@
 		workout: {
 			circuits: [
 				[
-					{ exercise: "jog", duration: 2 * 1000 },
-					{ exercise: "march", duration: 5 * 1000 },
-					{ exercise: "cross-tap", duration: 7 * 1000 },
-					{ exercise: "cross-jack", duration: 2 * 1000 },
-					{ exercise: "skater", duration: 10 * 1000 }
+					{ exercise: "jog", duration: 30 * 1000 },
+					{ exercise: "march", duration: 30 * 1000 },
+					{ exercise: "cross-tap", duration: 30 * 1000 },
+					{ exercise: "cross-jack", duration: 30 * 1000 },
+					{ exercise: "skater", duration: 30 * 1000 }
 				]
 			].flat() // NOTE!
 		},
@@ -110,6 +110,9 @@
 		duration={$currentExercise.instance.duration}
 		elapsed={$timer.elapsed}
 		interval={$timer.interval}
+		state={$status.matches("exercising.timing")
+			? $status.toStrings().pop().split(".").pop()
+			: undefined}
 	/>
 {/if}
 {#if $status.matches("exercising.timing.warning")}

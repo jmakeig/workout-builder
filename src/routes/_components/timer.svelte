@@ -1,10 +1,13 @@
 <!-- Forked from https://css-tricks.com/how-to-create-an-animated-countdown-timer-with-html-css-and-javascript/ -->
 <script>
+	import { coalesce } from "$lib/util";
+
 	export let duration;
 	export let elapsed = 0;
 	export let interval;
-	let progress;
+	export let state;
 
+	let progress;
 	$: progress = Math.min(1.0, (elapsed + interval) / duration);
 
 	function millisToMinutes(millis) {
@@ -14,13 +17,14 @@
 		const f = (n) => n.toFixed(0).padStart(2, "0");
 		return [f(minutes), f(seconds)].join(":");
 	}
+	const FUDGE = 0.2; // Make it so the animation isn’t janky
 </script>
 
 <!-- <div>{((elapsed + interval) / duration).toFixed(2)}</div> -->
 <div
-	class="timer"
-	style="--duration: {duration}; --interval: calc({interval /
-		1000} * 1s); --progress: {progress.toFixed(2)}"
+	class="timer {coalesce(state, '')}"
+	style="--duration: {duration}; --interval: calc({interval / 1000 +
+		FUDGE} * 1s); --progress: {progress.toFixed(2)}"
 >
 	<div style="font-variant-numeric: tabular-nums;">
 		{millisToMinutes(duration - elapsed)}
@@ -66,10 +70,16 @@
 
 	.progress {
 		transition: stroke-dashoffset var(--interval) linear;
-		stroke: green;
+		stroke: inherit; /* So the .warning color doesn’t show while the final animation is catching up. */
 		stroke-dashoffset: var(--progress, 0);
 		stroke-dasharray: 1 1;
 		stroke-width: 1.1px;
+	}
+	.running .progress {
+		stroke: green;
+	}
+	.warning .progress {
+		stroke: red;
 	}
 
 	.progress.reset {
