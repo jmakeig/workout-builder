@@ -1,26 +1,29 @@
+/* https://stately.ai/viz/7abfed3c-18e1-400f-a240-34a1247decd6 */
+
 import { createMachine, assign, send } from "xstate";
 
 export const workoutMachine = createMachine({
 	id: "workout",
-	/*
+	/* 
 	context: {
 		workout: {
 			circuits: [
 				[
-					{ exercise: "jog", duration: 2 * 1000 },
-					{ exercise: "march", duration: 2 * 1000 },
-					{ exercise: "cross-tap", duration: 2 * 1000 },
-					{ exercise: "cross-jack", duration: 2 * 1000 },
-					{ exercise: "skater", duration: 2 * 1000 }
+					{ exercise: "jog", duration: 10 * 1000 },
+					{ exercise: "march", duration: 10 * 1000 },
+					{ exercise: "cross-tap", duration: 10 * 1000 },
+					{ exercise: "cross-jack", duration: 10 * 1000 },
+					{ exercise: "skater", duration: 10 * 1000 }
 				]
 			].flat() // NOTE!
 		},
 		current: null,
 		timer: {
 			elapsed: 0, // milliseconds
-			interval: 0.1 * 1000 // milliseconds
+			interval: 0.1 * 1000, // milliseconds
+			warning: 5 * 1000 // milliseconds
 		}
-	},
+	}, 
 	*/
 	initial: "idle",
 	states: {
@@ -67,9 +70,24 @@ export const workoutMachine = createMachine({
 							}
 						};
 					}),
-					always: "running"
+					always: "timing"
 				},
-				running: {
+				timing: {
+					initial: "running",
+					states: {
+						running: {
+							always: [
+								{
+									target: "warning",
+									cond: (context) =>
+										context.timer.elapsed >=
+										context.workout.circuits[context.current].duration -
+											context.timer.warning
+								}
+							]
+						},
+						warning: {}
+					},
 					invoke: {
 						src: (context) => (callback) => {
 							const interval = setInterval(() => {
@@ -112,7 +130,7 @@ export const workoutMachine = createMachine({
 				paused: {
 					on: {
 						resume: {
-							target: "running"
+							target: "timing"
 						}
 					}
 				},

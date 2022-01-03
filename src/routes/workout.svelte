@@ -23,7 +23,7 @@
 		}
 	};
 
-	import { interpret } from "xstate";
+	import { interpret, matchesState } from "xstate";
 	import { workoutMachine } from "$lib/workoutMachine";
 
 	const initialContext = {
@@ -41,7 +41,8 @@
 		current: null,
 		timer: {
 			elapsed: 0, // milliseconds
-			interval: 0.1 * 1000 // milliseconds
+			interval: 0.1 * 1000, // milliseconds
+			warning: 5 * 1000 // milliseconds
 		}
 	};
 	const service = interpret(workoutMachine.withContext(initialContext));
@@ -110,6 +111,9 @@
 		elapsed={$timer.elapsed}
 		interval={$timer.interval}
 	/>
+{/if}
+{#if $status.matches("exercising.timing.warning")}
+	<div style="color: red;">warning</div>
 {/if}
 {#if $status.matches("transitioning")}
 	Transition…
