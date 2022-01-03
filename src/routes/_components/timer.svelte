@@ -1,6 +1,6 @@
 <!-- Forked from https://css-tricks.com/how-to-create-an-animated-countdown-timer-with-html-css-and-javascript/ -->
 <script>
-	import { coalesce } from "$lib/util";
+	import { coalesce, millisToMinutes } from "$lib/util";
 
 	export let duration;
 	export let elapsed = 0;
@@ -10,13 +10,6 @@
 	let progress;
 	$: progress = Math.min(1.0, (elapsed + interval) / duration);
 
-	function millisToMinutes(millis) {
-		const s = millis / 1000;
-		const minutes = Math.trunc(s / 60);
-		const seconds = s % 60;
-		const f = (n) => n.toFixed(0).padStart(2, "0");
-		return [f(minutes), f(seconds)].join(":");
-	}
 	const FUDGE = 0.2; // Make it so the animation isn’t janky
 </script>
 
@@ -36,7 +29,7 @@
 		fill="none"
 		class="circles"
 	>
-		<circle r="40" cx="50" cy="50" pathLength="1" />
+		<circle class="guide" r="40" cx="50" cy="50" pathLength="1" />
 		<circle
 			class="progress"
 			class:reset={0.0 === elapsed}
@@ -79,11 +72,27 @@
 		stroke: green;
 	}
 	.warning .progress {
-		stroke: red;
+		stroke: orange;
+		animation: warn 4s linear forwards;
+	}
+	.warning .guide {
+		animation: blink 1s linear infinite;
 	}
 
 	.progress.reset {
 		transition: none;
 		stroke-dashoffset: calc(var(--interval) / var(--duration));
+	}
+
+	@keyframes blink {
+		50% {
+			opacity: 0;
+		}
+	}
+
+	@keyframes warn {
+		100% {
+			stroke: red;
+		}
 	}
 </style>

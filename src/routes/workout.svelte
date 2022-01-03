@@ -30,11 +30,11 @@
 		workout: {
 			circuits: [
 				[
-					{ exercise: "jog", duration: 30 * 1000 },
-					{ exercise: "march", duration: 30 * 1000 },
-					{ exercise: "cross-tap", duration: 30 * 1000 },
-					{ exercise: "cross-jack", duration: 30 * 1000 },
-					{ exercise: "skater", duration: 30 * 1000 }
+					{ exercise: "jog", duration: 15 * 1000 },
+					{ exercise: "march", duration: 15 * 1000 },
+					{ exercise: "cross-tap", duration: 15 * 1000 },
+					{ exercise: "cross-jack", duration: 15 * 1000 },
+					{ exercise: "skater", duration: 15 * 1000 }
 				]
 			].flat() // NOTE!
 		},
@@ -88,9 +88,7 @@
 
 	import Print from "./_components/print.svelte";
 
-	function num(number) {
-		return new Intl.NumberFormat().format(number);
-	}
+	import {num} from "$lib/util";
 </script>
 
 <svelte:head>
