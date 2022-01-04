@@ -88,37 +88,95 @@
 
 	import Print from "./_components/print.svelte";
 
-	import {num} from "$lib/util";
+	import { num } from "$lib/util";
 </script>
 
 <svelte:head>
 	<title>Workout</title>
 </svelte:head>
 
-<h1>Workout</h1>
-{#if $status.matches("idle")}
-	<button on:click={(evt) => service.send("start")}>Start</button>
-{/if}
+<div class="wrapper">
+	<header><h1>Workout</h1></header>
+	<nav><pre>#nav</pre></nav>
+	<section id="exercise">
+		<pre>#exercise</pre>
+		{#if $status.matches("idle")}
+			<button on:click={(evt) => service.send("start")}>Start</button>
+		{/if}
 
-{#if $status.matches("exercising") || $status.matches("transitioning")}
-	<Print object={$currentExercise} />
-	<h1>{$currentExercise.info.name}</h1>
-	<div>{num($currentExercise.is + 1)} of {num($currentExercise.of)}</div>
-	<Timer
-		duration={$currentExercise.instance.duration}
-		elapsed={$timer.elapsed}
-		interval={$timer.interval}
-		state={$status.matches("exercising.timing")
-			? $status.toStrings().pop().split(".").pop()
-			: undefined}
-	/>
-{/if}
-{#if $status.matches("exercising.timing.warning")}
-	<div style="color: red;">warning</div>
-{/if}
-{#if $status.matches("transitioning")}
-	Transition…
-{/if}
-{#if $status.matches("done")}
-	Done!
-{/if}
+		{#if $status.matches("exercising") || $status.matches("transitioning")}
+			<!-- <Print object={$currentExercise} /> -->
+			<h1>{$currentExercise.info.name}</h1>
+			<div>{num($currentExercise.is + 1)} of {num($currentExercise.of)}</div>
+		{/if}
+
+		{#if $status.matches("transitioning")}
+			Transition…
+		{/if}
+		{#if $status.matches("done")}
+			Done!
+		{/if}
+	</section>
+	<section id="timer">
+		<pre>#timer</pre>
+		{#if $status.matches("exercising") || $status.matches("transitioning")}
+			<Timer
+				duration={$currentExercise.instance.duration}
+				elapsed={$timer.elapsed}
+				interval={$timer.interval}
+				state={$status.matches("exercising.timing") ||
+				$status.matches("transitioning")
+					? $status.toStrings().pop().split(".").pop()
+					: undefined}
+			/>
+		{/if}
+	</section>
+	<footer>footer</footer>
+</div>
+
+<style>
+	.wrapper {
+		max-width: 1080px;
+		margin: 0 auto;
+		display: grid;
+		grid-gap: 10px;
+		grid-template-columns: 1fr;
+		grid-template-areas:
+			"header"
+			"exercise"
+			"timer"
+			"nav"
+			"footer";
+	}
+
+	@media (min-width: 900px) {
+		.wrapper {
+			grid-template-columns: repeat(3, 1fr);
+			grid-template-areas:
+				"header  nav nav"
+				"exercise exercise timer"
+				"footer  footer  footer";
+		}
+
+		nav ul {
+			display: flex;
+			justify-content: space-between;
+		}
+	}
+	header {
+		grid-area: header;
+	}
+	nav {
+		grid-area: nav;
+	}
+	footer {
+		grid-area: footer;
+	}
+
+	section#exercise {
+		grid-area: exercise;
+	}
+	section#timer {
+		grid-area: timer;
+	}
+</style>

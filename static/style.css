@@ -1,0 +1,47 @@
+:root {
+	/* https://tailwindcss.com/docs/customizing-colors#default-color-palette */
+	--red: #ef4444;
+	--green: #16a34a;
+	--orange: #fb923c;
+	--yellow: #fde047;
+	--slate: #e2e8f0;
+
+	--font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+		"Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+		"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+		"Liberation Mono", "Courier New", monospace;
+}
+
+* {
+	box-sizing: border-box;
+}
+html {
+	width: 100vw;
+	min-height: 100vh;
+}
+body {
+	font-family: var(--font-sans);
+	font-size: 12pt;
+	padding: 1em;
+	line-height: 1.45;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	margin: 0 0 0.5rem 0;
+	line-height: 1;
+}
+
+main,
+nav,
+section,
+header,
+footer,
+article,
+aside {
+	outline: solid 0.5px #ccc !important;
+}
