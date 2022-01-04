@@ -106,9 +106,13 @@
 
 		{#if $status.matches("exercising") || $status.matches("transitioning")}
 			<!-- <Print object={$currentExercise} /> -->
-			<div style="display: flex; flex-flow: row no-wrap; border-bottom: solid 0.5px var(--slate);">
+			<div
+				style="display: flex; flex-flow: row; align-items: baseline; border-bottom: solid 2px var(--slate);"
+			>
 				<h2 style="flex: 1;">{$currentExercise.info.name}</h2>
-				<div style="width: 4em; align: right; line-height: 1; background: yellow;">{num($currentExercise.is + 1)} of {num($currentExercise.of)}</div>
+				<div style="width: 4em; text-align: right; font-weight: bold;">
+					{num($currentExercise.is + 1)} of {num($currentExercise.of)}
+				</div>
 			</div>
 		{/if}
 
@@ -133,7 +137,11 @@
 			/>
 		{/if}
 	</section>
-	<footer>footer</footer>
+	<footer>
+		<a href="https://github.com/jmakeig/workout-builder"
+			>https://github.com/jmakeig/workout-builder</a
+		>
+	</footer>
 </div>
 
 <style>
@@ -173,6 +181,7 @@
 	}
 	footer {
 		grid-area: footer;
+		font-size: 0.8em;
 	}
 
 	section#exercise {
