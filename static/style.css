@@ -43,5 +43,5 @@ header,
 footer,
 article,
 aside {
-	outline: solid 0.5px #ccc !important;
+	/* outline: solid 0.5px #ccc !important; */
 }

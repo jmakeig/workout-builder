@@ -99,15 +99,17 @@
 	<header><h1>Workout</h1></header>
 	<nav><pre>#nav</pre></nav>
 	<section id="exercise">
-		<pre>#exercise</pre>
+		<!-- <pre>#exercise</pre> -->
 		{#if $status.matches("idle")}
 			<button on:click={(evt) => service.send("start")}>Start</button>
 		{/if}
 
 		{#if $status.matches("exercising") || $status.matches("transitioning")}
 			<!-- <Print object={$currentExercise} /> -->
-			<h1>{$currentExercise.info.name}</h1>
-			<div>{num($currentExercise.is + 1)} of {num($currentExercise.of)}</div>
+			<div style="display: flex; flex-flow: row no-wrap; border-bottom: solid 0.5px var(--slate);">
+				<h2 style="flex: 1;">{$currentExercise.info.name}</h2>
+				<div style="width: 4em; align: right; line-height: 1; background: yellow;">{num($currentExercise.is + 1)} of {num($currentExercise.of)}</div>
+			</div>
 		{/if}
 
 		{#if $status.matches("transitioning")}
@@ -118,7 +120,7 @@
 		{/if}
 	</section>
 	<section id="timer">
-		<pre>#timer</pre>
+		<!-- <pre>#timer</pre> -->
 		{#if $status.matches("exercising") || $status.matches("transitioning")}
 			<Timer
 				duration={$currentExercise.instance.duration}
