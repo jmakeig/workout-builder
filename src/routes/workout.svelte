@@ -73,12 +73,28 @@
 			null === $status.context.current
 				? null
 				: $status.context.workout.circuits[$status.context.current];
+		const nextIndex =
+			null === $status.context.current
+				? 0
+				: $status.context.current ===
+				  $status.context.workout.circuits.length - 1
+				? null
+				: $status.context.current + 1;
 		return {
 			instance,
 			//info: instance && instance.exercise ? exercises[instance.exercise] : null,
 			info: instance ? exercises[instance.exercise] : null,
 			is: $status.context.current,
-			of: $status.context.workout.circuits.length
+			of: $status.context.workout.circuits.length,
+			next:
+				null === nextIndex
+					? null
+					: {
+							instance: $status.context.workout.circuits[nextIndex],
+							info: exercises[
+								$status.context.workout.circuits[nextIndex].exercise
+							]
+					  }
 		};
 	});
 
@@ -95,7 +111,7 @@
 
 	import Print from "./_components/print.svelte";
 
-	import { num } from "$lib/util";
+	import { num, millisToMinutes } from "$lib/util";
 </script>
 
 <svelte:head>
@@ -108,7 +124,10 @@
 	<section id="exercise">
 		<!-- <pre>#exercise</pre> -->
 		{#if $status.matches("idle")}
-			<button on:click={(evt) => service.send("start")} style="width: 8em; height: 8em; color: var(--green); background: none; border: solid 1px transparent; border-radius: 1em;">
+			<button
+				on:click={(evt) => service.send("start")}
+				style="width: 8em; height: 8em; color: var(--green); background: none; border: solid 1px transparent; border-radius: 1em;"
+			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					class="h-6 w-6"
@@ -133,8 +152,7 @@
 			>
 		{/if}
 
-		{#if $status.matches("exercising") || $status.matches("transitioning")}
-			<!-- <Print object={$currentExercise} /> -->
+		{#if $status.matches("exercising")}
 			<div
 				style="display: flex; flex-flow: row; align-items: baseline; border-bottom: solid 2px var(--slate);"
 			>
@@ -149,8 +167,13 @@
 		{/if}
 
 		{#if $status.matches("transitioning")}
-			Transition…
+			<div>
+				Up next: {$currentExercise.next.info.name} ({millisToMinutes(
+					$currentExercise.next.instance.duration
+				)})
+			</div>
 		{/if}
+
 		{#if $status.matches("done")}
 			Done!
 		{/if}
@@ -174,6 +197,7 @@
 			>https://github.com/jmakeig/workout-builder</a
 		>
 	</footer>
+	<Print object={$currentExercise} />
 </div>
 
 <style>

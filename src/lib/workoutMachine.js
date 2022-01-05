@@ -135,7 +135,18 @@ export const workoutMachine = createMachine({
 					}
 				},
 				completed: {
-					always: [{ target: "#workout.transitioning" }]
+					always: [
+						{
+							target: "#workout.transitioning",
+							cond: (context) =>
+								context.current < context.workout.circuits.length - 1
+						},
+						{
+							target: "#workout.done",
+							cond: (context) =>
+								context.current >= context.workout.circuits.length - 1
+						}
+					]
 				}
 			}
 			// on: {

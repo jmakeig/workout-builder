@@ -10,7 +10,8 @@
 
 <style>
 	pre {
-		height: 8em;
+		width: 100%;
+		height: 20em;
 		overflow: auto;
 
 		font-size: 0.75rem;
