@@ -3,23 +3,30 @@
 		"cross-jack": {
 			name: "Cross Jack",
 			description:
-				"Two full jumping jacks. Hands behind head. Touch elbow to opposite knee.",
+				"Two full jumping jacks. Then with your hands behind head, touch each elbow to opposite knee.",
 			modifications: {
 				easier: "",
 				harder: ""
 			}
 		},
-		"cross-tap": {
-			name: "Cross Tap"
+		"toe-tap": {
+			name: "Toe Tap",
+			description:
+				"With your feet slightly wider than shoulder width apart, alternate bending down and touching each foot with the opposite hand, jumping and fully extending your arms above your head as you come up."
 		},
 		jog: {
-			name: "Jog"
+			name: "Jog",
+			description: "Run in place, kicking your heels up behind you."
 		},
 		march: {
-			name: "March"
+			name: "March",
+			description:
+				"Alternate raising your knees above your waistline, pumping the opposite arm."
 		},
 		skater: {
-			name: "Skater"
+			name: "Skater",
+			description:
+				"Shift your weight from side to side, kicking the opposite foot behind you, reaching your arm across your body, like a speed skater."
 		}
 	};
 
@@ -32,7 +39,7 @@
 				[
 					{ exercise: "jog", duration: 15 * 1000 },
 					{ exercise: "march", duration: 15 * 1000 },
-					{ exercise: "cross-tap", duration: 15 * 1000 },
+					{ exercise: "toe-tap", duration: 15 * 1000 },
 					{ exercise: "cross-jack", duration: 15 * 1000 },
 					{ exercise: "skater", duration: 15 * 1000 }
 				]
@@ -101,7 +108,29 @@
 	<section id="exercise">
 		<!-- <pre>#exercise</pre> -->
 		{#if $status.matches("idle")}
-			<button on:click={(evt) => service.send("start")}>Start</button>
+			<button on:click={(evt) => service.send("start")} style="width: 8em; height: 8em; color: var(--green); background: none; border: solid 1px transparent; border-radius: 1em;">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-6 w-6"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+					/>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+					/>
+				</svg>
+				Start</button
+			>
 		{/if}
 
 		{#if $status.matches("exercising") || $status.matches("transitioning")}
@@ -113,6 +142,9 @@
 				<div style="width: 4em; text-align: right; font-weight: bold;">
 					{num($currentExercise.is + 1)} of {num($currentExercise.of)}
 				</div>
+			</div>
+			<div class="info">
+				<p>{$currentExercise.info.description}</p>
 			</div>
 		{/if}
 
