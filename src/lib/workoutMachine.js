@@ -22,6 +22,7 @@ export const workoutMachine = createMachine(
     }*/,
 			current: null,
 			currentExercise: null,
+			nextExercise: null,
 			timer: {
 				elapsed: 0, // milliseconds
 				interval: 0.1 * 1000, // milliseconds
@@ -54,29 +55,30 @@ export const workoutMachine = createMachine(
 			},
 			error: {},
 			transitioning: {
-				initial: "incrementing",
+				initial: "waiting",
 				states: {
-					incrementing: {
-						always: {
-							target: "loading",
-							actions: assign({
-								current: (context, event) => increment(context.current)
-							})
-						}
+					waiting: {
+						after: [{ delay: 2000, target: "loading" }],
+						exit: assign({
+							current: (context, event) => increment(context.current)
+						})
 					},
 					loading: {
 						invoke: {
 							id: "exerciseService",
 							src: (context, event) =>
-								wait(
-									// This is not technically correct. The minimum wait should be
-									// in the `transitioning` phase, but not `loading`.
-									// For now, the UI doesn’t differentiate between the two, though.
-									fetchExercise(
-										context.workout.circuits[context.current].exercise
-									),
-									2000
-								),
+								// wait(
+								// This is not technically correct. The minimum wait should be
+								// in the `transitioning` phase, but not `loading`.
+								// For now, the UI doesn’t differentiate between the two, though.
+								fetchExercise([
+									context.workout.circuits[context.current].exercise,
+									context.workout.circuits[context.current + 1]
+										? context.workout.circuits[context.current + 1].exercise
+										: null
+								]),
+							// , 2000
+							// )
 							onDone: [
 								{
 									target: "#workout.exercising",
@@ -84,19 +86,43 @@ export const workoutMachine = createMachine(
 										context.current < context.workout.circuits.length,
 									actions: [
 										assign({
-											currentExercise: (context, event) => event.data
+											currentExercise: (context, event) => ({
+												info: event.data[0],
+												instance: context.workout.circuits[context.current]
+											})
+										}),
+										assign({
+											nextExercise: (context, event) => ({
+												info: event.data[1],
+												instance: context.workout.circuits[context.current + 1]
+											})
 										})
 									]
 								},
 								{
 									target: "#workout.done",
-									delay: 500,
 									cond: (context, event) =>
 										context.current >= context.workout.circuits.length
 								}
 							],
 							onError: []
 						}
+					},
+					waitingXXX: {
+						after: [
+							{
+								delay: 2000,
+								target: "#workout.exercising",
+								cond: (context, event) =>
+									context.current < context.workout.circuits.length
+							},
+							{
+								delay: 500,
+								target: "#workout.done",
+								cond: (context, event) =>
+									context.current >= context.workout.circuits.length
+							}
+						]
 					}
 				}
 			},
@@ -231,7 +257,15 @@ function exerciseService(context, event) {
 	const id = event.exercise;
 	return fetchExercise(id);
 }
+/**
+ *
+ * @param {string | Array<string>} id
+ * @returns {Promise<ExerciseInfo> | Promise<ExerciseInfo[]>}
+ */
 function fetchExercise(id) {
+	if (Array.isArray(id)) {
+		return Promise.all(id.map(fetchExercise));
+	}
 	const exercises = {
 		"cross-jack": {
 			name: "Cross Jack",
@@ -264,9 +298,9 @@ function fetchExercise(id) {
 	};
 	const exercise = exercises[id];
 	if (exercise) {
-		console.log(exercise);
+		// console.log(exercise);
 		return Promise.resolve(exercise);
-	} else Promise.reject(`Couldn’t find exercise, '${String(id)}'`);
+	} else return Promise.resolve(null); //Promise.reject(`Couldn’t find exercise, '${String(id)}'`);
 }
 
 /**

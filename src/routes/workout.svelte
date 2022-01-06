@@ -5,74 +5,29 @@
 	const service = interpret(workoutMachine);
 
 	import { readable, derived } from "svelte/store";
-	// const status = readable(workoutMachine.initialState, (set) => {
-	// 	service
-	// 		.onTransition((state) => {
-	// 			if (false !== state.changed) {
-	// 				console.log("Transition", state.value);
-	// 				set(state);
-	// 			}
-	// 		})
-	// 		.onDone((state) => console.log("Workout machine done"))
-	// 		.start();
-	// 	return () => service.stop();
-	// });
-	const status = service.start(); // Services are Stores!
-
-	const currentExercise = derived(status, ($status) => {
-		console.warn("Dummy implemenation of $currentExercise");
-		return {
-			instance: {
-				exercise: "jog",
-				duration: 10 * 1000
-			},
-			info: {
-				name: "Jog",
-				description: "Run in place, kicking your heels up behind you."
-			},
-			is: 1,
-			of: 5,
-			next: {
-				instance: {
-					exercise: "march",
-					duration: 10 * 1000
-				},
-				info: {
-					name: "March",
-					description:
-						"Alternate raising your knees above your waistline, pumping the opposite arm."
+	const status = readable(workoutMachine.initialState, (set) => {
+		service
+			.onTransition((state) => {
+				if (false !== state.changed) {
+					console.log("Transition", state.value);
+					set(state);
 				}
-			}
-		};
-		/*
-		const instance =
-			null === $status.context.current
-				? null
-				: $status.context.workout.circuits[$status.context.current];
-		const nextIndex =
-			null === $status.context.current
-				? 0
-				: $status.context.current ===
-				  $status.context.workout.circuits.length - 1
-				? null
-				: $status.context.current + 1;
+			})
+			.onDone((state) => console.log("Workout machine done"))
+			.start();
+		return () => service.stop();
+	});
+	// const status = service.start(); // Services are Stores!
+
+	const exercise = derived(status, ($status) => {
 		return {
-			instance,
-			//info: instance && instance.exercise ? exercises[instance.exercise] : null,
-			info: instance ? exercises[instance.exercise] : null,
+			current: $status.context.currentExercise,
 			is: $status.context.current,
-			of: $status.context.workout.circuits.length,
-			next:
-				null === nextIndex
-					? null
-					: {
-							instance: $status.context.workout.circuits[nextIndex],
-							info: exercises[
-								$status.context.workout.circuits[nextIndex].exercise
-							]
-					  }
+			of: $status.context.workout
+				? $status.context.workout.circuits.length
+				: undefined,
+			next: $status.context.nextExercise
 		};
-	  */
 	});
 
 	const timer = derived(status, ($status) => {
@@ -104,7 +59,6 @@
 	import Print from "./_components/print.svelte";
 
 	import { num, millisToMinutes } from "$lib/util";
-	import { start } from "xstate/lib/actions";
 </script>
 
 <svelte:head>
@@ -150,21 +104,25 @@
 			<div
 				style="display: flex; flex-flow: row; align-items: baseline; border-bottom: solid 2px var(--slate);"
 			>
-				<h2 style="flex: 1;">{$currentExercise.info.name}</h2>
+				<h2 style="flex: 1;">{$exercise.current.info.name}</h2>
 				<div style="width: 4em; text-align: right; font-weight: bold;">
-					{num($currentExercise.is + 1)} of {num($currentExercise.of)}
+					{num($exercise.is + 1)} of {num($exercise.of)}
 				</div>
 			</div>
 			<div class="info">
-				<p>{$currentExercise.info.description}</p>
+				<p>{$exercise.current.info.description}</p>
 			</div>
 		{/if}
 
-		{#if $status.matches("transitioning")}
+		{#if $status.matches("transitioning.waiting")}
 			<div>
-				Up next: {$currentExercise.next.info.name} ({millisToMinutes(
-					$currentExercise.next.instance.duration
-				)})
+				{#if $exercise.next && $exercise.next.info}
+					Up next: {$exercise.next.info.name} ({millisToMinutes(
+						$exercise.next.instance.duration
+					)})
+				{:else}
+					Get ready…
+				{/if}
 			</div>
 		{/if}
 
@@ -174,9 +132,11 @@
 	</section>
 	<section id="timer">
 		<!-- <pre>#timer</pre> -->
-		{#if $status.matches("exercising") || $status.matches("transitioning")}
+		{#if $status.matches("exercising") || $status.matches("transitioning.waiting")}
 			<Timer
-				duration={$currentExercise.instance.duration}
+				duration={$exercise.current && $exercise.current.instance
+					? $exercise.current.instance.duration
+					: 1}
 				elapsed={$timer.elapsed}
 				interval={$timer.interval}
 				state={$timer.status}
@@ -188,11 +148,13 @@
 			>https://github.com/jmakeig/workout-builder</a
 		>
 	</footer>
-	<Print object={$status.value} />
-	<Print object={$status.context} />
-	<Print object={$currentExercise} />
 </div>
 
+<!-- 
+<Print object={$status.value} label="$status.value" />
+<Print object={$status.context} label="$status.context" />
+<Print object={$exercise} label="$exercise" /> 
+-->
 <style>
 	.wrapper {
 		max-width: 1080px;
