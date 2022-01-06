@@ -1,74 +1,50 @@
 <script>
-	const exercises = {
-		"cross-jack": {
-			name: "Cross Jack",
-			description:
-				"Two full jumping jacks. Then with your hands behind head, touch each elbow to opposite knee.",
-			modifications: {
-				easier: "",
-				harder: ""
-			}
-		},
-		"toe-tap": {
-			name: "Toe Tap",
-			description:
-				"With your feet slightly wider than shoulder width apart, alternate bending down and touching each foot with the opposite hand, jumping and fully extending your arms above your head as you come up."
-		},
-		jog: {
-			name: "Jog",
-			description: "Run in place, kicking your heels up behind you."
-		},
-		march: {
-			name: "March",
-			description:
-				"Alternate raising your knees above your waistline, pumping the opposite arm."
-		},
-		skater: {
-			name: "Skater",
-			description:
-				"Shift your weight from side to side, kicking the opposite foot behind you, reaching your arm across your body, like a speed skater."
-		}
-	};
-
 	import { interpret, matchesState } from "xstate";
 	import { workoutMachine } from "$lib/workoutMachine";
 
-	const initialContext = {
-		workout: {
-			circuits: [
-				[
-					{ exercise: "jog", duration: 15 * 1000 },
-					{ exercise: "march", duration: 15 * 1000 },
-					{ exercise: "toe-tap", duration: 15 * 1000 },
-					{ exercise: "cross-jack", duration: 15 * 1000 },
-					{ exercise: "skater", duration: 15 * 1000 }
-				]
-			].flat() // NOTE!
-		},
-		current: null,
-		timer: {
-			elapsed: 0, // milliseconds
-			interval: 0.1 * 1000, // milliseconds
-			warning: 5 * 1000 // milliseconds
-		}
-	};
-	const service = interpret(workoutMachine.withContext(initialContext));
+	const service = interpret(workoutMachine);
 
 	import { readable, derived } from "svelte/store";
-	const status = readable(workoutMachine.initialState, (set) => {
-		service
-			.onTransition((state) => {
-				if (false !== state.changed) {
-					console.log("Transition", state.value);
-					set(state);
-				}
-			})
-			.onDone((state) => console.log("Workout machine done"))
-			.start();
-		return () => service.stop();
-	});
+	// const status = readable(workoutMachine.initialState, (set) => {
+	// 	service
+	// 		.onTransition((state) => {
+	// 			if (false !== state.changed) {
+	// 				console.log("Transition", state.value);
+	// 				set(state);
+	// 			}
+	// 		})
+	// 		.onDone((state) => console.log("Workout machine done"))
+	// 		.start();
+	// 	return () => service.stop();
+	// });
+	const status = service.start(); // Services are Stores!
 
 	const currentExercise = derived(status, ($status) => {
+		console.warn("Dummy implemenation of $currentExercise");
+		return {
+			instance: {
+				exercise: "jog",
+				duration: 10 * 1000
+			},
+			info: {
+				name: "Jog",
+				description: "Run in place, kicking your heels up behind you."
+			},
+			is: 1,
+			of: 5,
+			next: {
+				instance: {
+					exercise: "march",
+					duration: 10 * 1000
+				},
+				info: {
+					name: "March",
+					description:
+						"Alternate raising your knees above your waistline, pumping the opposite arm."
+				}
+			}
+		};
+		/*
 		const instance =
 			null === $status.context.current
 				? null
@@ -96,22 +72,39 @@
 							]
 					  }
 		};
+	  */
 	});
 
-	const timer = derived(status, ($status) => ({
-		elapsed: $status.context.timer.elapsed,
-		duration:
-			null === $status.context.current
-				? null
-				: $status.context.workout.circuits[$status.context.current].duration,
-		interval: $status.context.timer.interval
-	}));
+	const timer = derived(status, ($status) => {
+		function mapStatus(s) {
+			switch (true) {
+				case s.matches("transitioning"):
+					return "transitioning";
+				case s.matches("exercising.timing.running"):
+					return "running";
+				case s.matches("exercising.timing.warning"):
+					return "warning";
+				default:
+					s.value;
+			}
+		}
+		return {
+			elapsed: $status.context.timer.elapsed,
+			duration:
+				null === $status.context.current
+					? null
+					: $status.context.workout.circuits[$status.context.current].duration,
+			interval: $status.context.timer.interval,
+			status: mapStatus($status)
+		};
+	});
 
 	import Timer from "./_components/timer.svelte";
 
 	import Print from "./_components/print.svelte";
 
 	import { num, millisToMinutes } from "$lib/util";
+	import { start } from "xstate/lib/actions";
 </script>
 
 <svelte:head>
@@ -136,15 +129,16 @@
 					stroke="currentColor"
 				>
 					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
+						stroke-linecap="square"
+						stroke-linejoin="square"
+						stroke-width="0.5"
+						fill="currentColor"
 						d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
 					/>
 					<path
 						stroke-linecap="round"
 						stroke-linejoin="round"
-						stroke-width="2"
+						stroke-width="1"
 						d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 					/>
 				</svg>
@@ -185,10 +179,7 @@
 				duration={$currentExercise.instance.duration}
 				elapsed={$timer.elapsed}
 				interval={$timer.interval}
-				state={$status.matches("exercising.timing") ||
-				$status.matches("transitioning")
-					? $status.toStrings().pop().split(".").pop()
-					: undefined}
+				state={$timer.status}
 			/>
 		{/if}
 	</section>
@@ -197,6 +188,8 @@
 			>https://github.com/jmakeig/workout-builder</a
 		>
 	</footer>
+	<Print object={$status.value} />
+	<Print object={$status.context} />
 	<Print object={$currentExercise} />
 </div>
 
