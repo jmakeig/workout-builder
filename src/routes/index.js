@@ -1,6 +1,6 @@
 export async function get() {
 	return {
-		headers: { Location: "/config" },
+		headers: { Location: "/workout" },
 		status: 302
 	};
 }
