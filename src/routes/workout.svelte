@@ -88,7 +88,7 @@
 			</div>
 		{/if}
 
-		{#if $status.matches("transitioning.waiting")}
+		{#if $status.matches("transitioning")}
 			<div>
 				{#if $exercise.next && $exercise.next.info}
 					Up next: {$exercise.next.info.name} ({millisToMinutes(
@@ -106,7 +106,7 @@
 	</section>
 	<section id="timer">
 		<!-- <pre>#timer</pre> -->
-		{#if $status.matches("exercising") || $status.matches("transitioning.waiting")}
+		{#if $status.matches("exercising") || $status.matches("transitioning")}
 			<Timer
 				duration={$exercise.current && $exercise.current.instance
 					? $exercise.current.instance.duration
