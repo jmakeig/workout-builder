@@ -5,19 +5,19 @@
 	const service = interpret(workoutMachine);
 
 	import { readable, derived } from "svelte/store";
-	const status = readable(workoutMachine.initialState, (set) => {
-		service
-			.onTransition((state) => {
-				if (false !== state.changed) {
-					console.log("Transition", state.value);
-					set(state);
-				}
-			})
-			.onDone((state) => console.log("Workout machine done"))
-			.start();
-		return () => service.stop();
-	});
-	// const status = service.start(); // Services are Stores!
+	// const status = readable(workoutMachine.initialState, (set) => {
+	// 	service
+	// 		.onTransition((state) => {
+	// 			if (false !== state.changed) {
+	// 				console.log("Transition", state.value);
+	// 				set(state);
+	// 			}
+	// 		})
+	// 		.onDone((state) => console.log("Workout machine done"))
+	// 		.start();
+	// 	return () => service.stop();
+	// });
+	const status = service.start(); // Services are Stores!
 
 	const exercise = derived(status, ($status) => {
 		return {
@@ -71,33 +71,7 @@
 	<section id="exercise">
 		<!-- <pre>#exercise</pre> -->
 		{#if $status.matches("idle")}
-			<button
-				on:click={(evt) => service.send("start")}
-				style="width: 8em; height: 8em; color: var(--green); background: none; border: solid 1px transparent; border-radius: 1em;"
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					class="h-6 w-6"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-				>
-					<path
-						stroke-linecap="square"
-						stroke-linejoin="square"
-						stroke-width="0.5"
-						fill="currentColor"
-						d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-					/>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="1"
-						d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-					/>
-				</svg>
-				Start</button
-			>
+			<button on:click={(evt) => service.send("start")}>Start</button>
 		{/if}
 
 		{#if $status.matches("exercising")}
