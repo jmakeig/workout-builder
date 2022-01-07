@@ -1,25 +1,15 @@
 /* https://stately.ai/viz/7abfed3c-18e1-400f-a240-34a1247decd6 */
 
-import { createMachine, assign, send } from "xstate";
+import { createMachine, assign } from "xstate";
+
+const TRANSITION_DELAY = 1500;
 
 export const workoutMachine = createMachine(
 	{
 		id: "workout",
 
 		context: {
-			workout: null /*{
-       
-			circuits: [
-				[
-					{ exercise: "jog", duration: 10 * 1000 },
-					{ exercise: "march", duration: 10 * 1000 },
-					{ exercise: "cross-tap", duration: 10 * 1000 },
-					{ exercise: "cross-jack", duration: 10 * 1000 },
-					{ exercise: "skater", duration: 10 * 1000 }
-				]
-			].flat() // NOTE!
-      
-    }*/,
+			workout: null, // { circuits: [], exercises: {}}
 			current: null,
 			currentExercise: null,
 			nextExercise: null,
@@ -29,7 +19,6 @@ export const workoutMachine = createMachine(
 				warning: 5 * 1000 // milliseconds
 			}
 		},
-
 		initial: "idle",
 		states: {
 			idle: {
@@ -57,7 +46,7 @@ export const workoutMachine = createMachine(
 			transitioning: {
 				after: [
 					{
-						delay: 2000,
+						delay: TRANSITION_DELAY,
 						target: "exercising",
 						actions: [
 							assign({
@@ -144,9 +133,11 @@ export const workoutMachine = createMachine(
 							}
 						],
 						on: {
+							/*
 							pause: {
 								target: "paused"
 							},
+							*/
 							TICK: {
 								actions: [
 									assign((context) => {
@@ -163,6 +154,7 @@ export const workoutMachine = createMachine(
 							}
 						}
 					},
+					/*
 					paused: {
 						on: {
 							resume: {
@@ -170,6 +162,7 @@ export const workoutMachine = createMachine(
 							}
 						}
 					},
+					*/
 					completed: {
 						always: [
 							{
