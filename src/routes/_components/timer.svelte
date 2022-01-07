@@ -8,7 +8,7 @@
 	export let state;
 
 	let progress;
-	$: progress = Math.min(1.0, (elapsed + interval) / duration);
+	$: progress = Math.min(1.0, -(elapsed + interval) / duration);
 
 	const FUDGE = 0.2; // Make it so the animation isn’t janky
 </script>

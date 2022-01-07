@@ -70,7 +70,7 @@
 			);
 			timer.style.setProperty(
 				"--progress",
-				((elapsed + interval) / duration).toFixed(2)
+				(-(elapsed + interval) / duration).toFixed(2)
 			);
 			const auto = setInterval(() => {
 				console.log(((elapsed + interval) / duration).toFixed(2));
@@ -79,7 +79,7 @@
 				if (elapsed <= duration - interval) {
 					timer.style.setProperty(
 						"--progress",
-						((elapsed + interval) / duration).toFixed(2)
+						(-(elapsed + interval) / duration).toFixed(2)
 					);
 				}
 				clock.innerText = `${((duration - elapsed) / 1000).toFixed(2)}`;
