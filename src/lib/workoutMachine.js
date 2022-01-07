@@ -23,7 +23,7 @@ export const workoutMachine = createMachine(
 		states: {
 			idle: {
 				on: {
-					start: {
+					initialize: {
 						target: "initializing"
 					}
 				}
@@ -33,7 +33,7 @@ export const workoutMachine = createMachine(
 					id: "workoutService",
 					src: "workoutService",
 					onDone: {
-						target: "transitioning",
+						target: "initialized",
 						actions: [assign({ workout: (context, event) => event.data })]
 					},
 					onError: {
@@ -43,6 +43,11 @@ export const workoutMachine = createMachine(
 				}
 			},
 			error: {},
+			initialized: {
+				on: {
+					start: "transitioning"
+				}
+			},
 			transitioning: {
 				after: [
 					{

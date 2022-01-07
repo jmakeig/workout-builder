@@ -54,6 +54,10 @@
 		};
 	});
 
+	// import { onMount } from "svelte";
+	// onMount(() => service.send("initialize"));
+	service.send("initialize");
+
 	import Timer from "./_components/timer.svelte";
 
 	import Print from "./_components/print.svelte";
@@ -65,13 +69,47 @@
 	<title>Workout</title>
 </svelte:head>
 
-<div class="wrapper">
+<div
+	class="wrapper"
+	class:initialized={$status.matches("initialized")}
+	class:exercising={$status.matches("exercising")}
+	class:transitioning={$status.matches("transitioning")}
+	class:done={$status.matches("done")}
+>
 	<header><h1>Workout</h1></header>
-	<nav><pre>#nav</pre></nav>
+	<nav>
+		<!-- <pre>#nav</pre> -->
+		<a href="/config">Build</a>
+	</nav>
 	<section id="exercise">
 		<!-- <pre>#exercise</pre> -->
-		{#if $status.matches("idle")}
+		{#if $status.matches("initialized")}
+			<h2>
+				{$status.context.workout.circuits.length} exercises over
+				<span class="duration">
+					{millisToMinutes(
+						$status.context.workout.circuits.reduce(
+							(total, exercise) => total + exercise.duration,
+							0
+						)
+						// + 1500 * ($status.context.workout.circuits.length - 1)
+					)}
+				</span> minutes
+			</h2>
 			<button on:click={(evt) => service.send("start")}>Start</button>
+			<table>
+				<thead>
+					<tr><th>Exercise</th><th style="width: 4em;">Duration</th></tr>
+				</thead>
+				<tbody>
+					{#each $status.context.workout.circuits as { exercise, duration }, i}
+						<tr>
+							<td>{$status.context.workout.exercises[exercise].name}</td>
+							<td class="duration">{millisToMinutes(duration)}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
 		{/if}
 
 		{#if $status.matches("exercising")}
@@ -106,7 +144,7 @@
 	</section>
 	<section id="timer">
 		<!-- <pre>#timer</pre> -->
-		{#if $status.matches("exercising") || $status.matches("transitioning")}
+		{#if $status.matches("initialized") || $status.matches("exercising") || $status.matches("transitioning")}
 			<Timer
 				duration={$exercise.current && $exercise.current.instance
 					? $exercise.current.instance.duration
@@ -148,7 +186,7 @@
 		.wrapper {
 			grid-template-columns: repeat(3, 1fr);
 			grid-template-areas:
-				"header  nav nav"
+				"header nav nav"
 				"exercise exercise timer"
 				"footer  footer  footer";
 		}
@@ -172,7 +210,37 @@
 	section#exercise {
 		grid-area: exercise;
 	}
+	.initialized h2 {
+		text-align: center;
+	}
 	section#timer {
 		grid-area: timer;
+	}
+
+	table {
+		margin: 1em 0;
+		width: 100%;
+		table-layout: fixed; /* Uses first row to size. This renders faster for regular tables. */
+		border-spacing: 0;
+		border-collapse: collapse; /* https://stackoverflow.com/a/53559396/563324 */
+	}
+	th,
+	td {
+		padding: 0.5em 0;
+		text-align: left;
+		font-weight: normal;
+	}
+	tbody tr {
+		border-bottom: solid 1px var(--slate);
+	}
+	thead th {
+	}
+	thead {
+	}
+	.duration {
+		font-family: var(--font-mono);
+	}
+	td.duration {
+		text-align: right;
 	}
 </style>
