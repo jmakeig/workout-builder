@@ -71,7 +71,7 @@
 
 <div
 	class="wrapper"
-	class:initialized={$status.matches("initialized")}
+	class:ready={$status.matches("ready")}
 	class:exercising={$status.matches("exercising")}
 	class:transitioning={$status.matches("transitioning")}
 	class:done={$status.matches("done")}
@@ -83,7 +83,7 @@
 	</nav>
 	<section id="exercise">
 		<!-- <pre>#exercise</pre> -->
-		{#if $status.matches("initialized")}
+		{#if $status.matches("ready")}
 			<h2>
 				{$status.context.workout.circuits.length} exercises over
 				<span class="duration">
@@ -144,7 +144,7 @@
 	</section>
 	<section id="timer">
 		<!-- <pre>#timer</pre> -->
-		{#if $status.matches("initialized") || $status.matches("exercising") || $status.matches("transitioning")}
+		{#if $status.matches("ready") || $status.matches("exercising") || $status.matches("transitioning")}
 			<Timer
 				duration={$exercise.current && $exercise.current.instance
 					? $exercise.current.instance.duration
@@ -176,8 +176,8 @@
 		grid-template-columns: 1fr;
 		grid-template-areas:
 			"header"
-			"exercise"
 			"timer"
+			"exercise"
 			"nav"
 			"footer";
 	}
@@ -210,9 +210,10 @@
 	section#exercise {
 		grid-area: exercise;
 	}
-	.initialized h2 {
+	.ready h2 {
 		text-align: center;
 	}
+
 	section#timer {
 		grid-area: timer;
 	}

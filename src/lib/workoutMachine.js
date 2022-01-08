@@ -33,7 +33,7 @@ export const workoutMachine = createMachine(
 					id: "workoutService",
 					src: "workoutService",
 					onDone: {
-						target: "initialized",
+						target: "ready",
 						actions: [assign({ workout: (context, event) => event.data })]
 					},
 					onError: {
@@ -43,7 +43,7 @@ export const workoutMachine = createMachine(
 				}
 			},
 			error: {},
-			initialized: {
+			ready: {
 				on: {
 					start: "transitioning"
 				}
