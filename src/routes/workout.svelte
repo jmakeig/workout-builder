@@ -1,62 +1,11 @@
 <script>
-	import { interpret, matchesState } from "xstate";
-	import { workoutMachine } from "$lib/workoutMachine";
+	import { useWorkoutMachine } from "$lib/workoutStore";
+	const { status, exercise, timer, send } = useWorkoutMachine();
 
-	const service = interpret(workoutMachine);
-
-	import { readable, derived } from "svelte/store";
-	// const status = readable(workoutMachine.initialState, (set) => {
-	// 	service
-	// 		.onTransition((state) => {
-	// 			if (false !== state.changed) {
-	// 				console.log("Transition", state.value);
-	// 				set(state);
-	// 			}
-	// 		})
-	// 		.onDone((state) => console.log("Workout machine done"))
-	// 		.start();
-	// 	return () => service.stop();
-	// });
-	const status = service.start(); // Services are Stores!
-
-	const exercise = derived(status, ($status) => {
-		return {
-			current: $status.context.currentExercise,
-			is: $status.context.current,
-			of: $status.context.workout
-				? $status.context.workout.circuits.length
-				: undefined,
-			next: $status.context.nextExercise
-		};
-	});
-
-	const timer = derived(status, ($status) => {
-		function mapStatus(s) {
-			switch (true) {
-				case s.matches("transitioning"):
-					return "transitioning";
-				case s.matches("exercising.timing.running"):
-					return "running";
-				case s.matches("exercising.timing.warning"):
-					return "warning";
-				default:
-					s.value;
-			}
-		}
-		return {
-			elapsed: $status.context.timer.elapsed,
-			duration:
-				null === $status.context.current
-					? null
-					: $status.context.workout.circuits[$status.context.current].duration,
-			interval: $status.context.timer.interval,
-			status: mapStatus($status)
-		};
-	});
 
 	// import { onMount } from "svelte";
-	// onMount(() => service.send("initialize"));
-	service.send("initialize");
+	// onMount(() => send("initialize"));
+	send("initialize");
 
 	import Timer from "./_components/timer.svelte";
 
@@ -96,7 +45,7 @@
 					)}
 				</span> minutes
 			</h2>
-			<button on:click={(evt) => service.send("start")}>Start</button>
+			<button on:click={(evt) => send("start")}>Start</button>
 			<table>
 				<thead>
 					<tr><th>Exercise</th><th style="width: 4em;">Duration</th></tr>
