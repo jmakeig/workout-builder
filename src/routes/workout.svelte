@@ -1,15 +1,10 @@
 <script>
 	import { useWorkoutMachine } from "$lib/workoutStore";
-	const { status, exercise, timer, send } = useWorkoutMachine();
-
-
-	// import { onMount } from "svelte";
-	// onMount(() => send("initialize"));
+	const { workout, exercise, timer, matches, send } = useWorkoutMachine();
+	
 	send("initialize");
 
 	import Timer from "./_components/timer.svelte";
-
-	import Print from "./_components/print.svelte";
 
 	import { num, millisToMinutes } from "$lib/util";
 </script>
@@ -20,10 +15,10 @@
 
 <div
 	class="wrapper"
-	class:ready={$status.matches("ready")}
-	class:exercising={$status.matches("exercising")}
-	class:transitioning={$status.matches("transitioning")}
-	class:done={$status.matches("done")}
+	class:ready={$matches("ready")}
+	class:exercising={$matches("exercising")}
+	class:transitioning={$matches("transitioning")}
+	class:done={$matches("done")}
 >
 	<header><h1>Workout</h1></header>
 	<nav>
@@ -32,16 +27,16 @@
 	</nav>
 	<section id="exercise">
 		<!-- <pre>#exercise</pre> -->
-		{#if $status.matches("ready")}
+		{#if $matches("ready")}
 			<h2>
-				{$status.context.workout.circuits.length} exercises over
+				{$workout.circuits.length} exercises over
 				<span class="duration">
 					{millisToMinutes(
-						$status.context.workout.circuits.reduce(
+						$workout.circuits.reduce(
 							(total, exercise) => total + exercise.duration,
 							0
 						)
-						// + 1500 * ($status.context.workout.circuits.length - 1)
+						// + 1500 * ($workout.circuits.length - 1)
 					)}
 				</span> minutes
 			</h2>
@@ -51,9 +46,9 @@
 					<tr><th>Exercise</th><th style="width: 4em;">Duration</th></tr>
 				</thead>
 				<tbody>
-					{#each $status.context.workout.circuits as { exercise, duration }, i}
+					{#each $workout.circuits as { exercise, duration }, i}
 						<tr>
-							<td>{$status.context.workout.exercises[exercise].name}</td>
+							<td>{$workout.exercises[exercise].name}</td>
 							<td class="duration">{millisToMinutes(duration)}</td>
 						</tr>
 					{/each}
@@ -61,7 +56,7 @@
 			</table>
 		{/if}
 
-		{#if $status.matches("exercising")}
+		{#if $matches("exercising")}
 			<div
 				style="display: flex; flex-flow: row; align-items: baseline; border-bottom: solid 2px var(--slate);"
 			>
@@ -75,7 +70,7 @@
 			</div>
 		{/if}
 
-		{#if $status.matches("transitioning")}
+		{#if $matches("transitioning")}
 			<div>
 				{#if $exercise.next && $exercise.next.info}
 					Up next: {$exercise.next.info.name} ({millisToMinutes(
@@ -87,13 +82,13 @@
 			</div>
 		{/if}
 
-		{#if $status.matches("done")}
+		{#if $matches("done")}
 			Done!
 		{/if}
 	</section>
 	<section id="timer">
 		<!-- <pre>#timer</pre> -->
-		{#if $status.matches("ready") || $status.matches("exercising") || $status.matches("transitioning")}
+		{#if $matches("ready") || $matches("exercising") || $matches("transitioning")}
 			<Timer
 				duration={$exercise.current && $exercise.current.instance
 					? $exercise.current.instance.duration
@@ -111,11 +106,6 @@
 	</footer>
 </div>
 
-<!-- 
-<Print object={$status.value} label="$status.value" />
-<Print object={$status.context} label="$status.context" />
-<Print object={$exercise} label="$exercise" /> 
--->
 <style>
 	.wrapper {
 		max-width: 1080px;

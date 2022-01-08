@@ -23,9 +23,13 @@ export function useWorkoutMachine(fetchWorkoutImpl = fetchWorkout) {
 		return () => service.stop();
 	});
 	*/
+
+	// Are there too many derived stores wired up here? Do these
+	// subscriptions simplify re-rending work or complicate it
+	// with nested subscriptions?
 	const status = service.start();
 	return {
-		status: status,
+		workout: derived(status, ($status) => $status.context.workout),
 		exercise: derived(status, ($status) => {
 			return {
 				current: $status.context.currentExercise,
@@ -60,7 +64,10 @@ export function useWorkoutMachine(fetchWorkoutImpl = fetchWorkout) {
 				status: mapStatus($status)
 			};
 		}),
-		send: service.send
+		send: service.send,
+		// TODO: This is weird. Maybe expose state property that could 
+		//       be called as $stat.matches(…)?
+		matches: derived(status, ($status) => $status.matches)
 	};
 }
 
