@@ -26,21 +26,44 @@
 		<!-- <pre>#nav</pre> -->
 		<a href="/config">Build</a>
 	</nav>
+	<section id="title">
+		{#if $matches("ready")}
+			<h2 style="display: flex;">
+				{$workout.circuits.length} exercises over
+
+				{millisToMinutes(
+					$workout.circuits.reduce(
+						(total, exercise) => total + exercise.duration,
+						0
+					)
+					// + 1500 * ($workout.circuits.length - 1)
+				)}
+				minutes
+			</h2>
+		{/if}
+		{#if $matches("transitioning")}
+			<h2>
+				{#if $exercise.next && $exercise.next.info}
+					Up next: {$exercise.next.info.name} ({millisToMinutes(
+						$exercise.next.instance.duration
+					)})
+				{:else}
+					Get ready…
+				{/if}
+			</h2>
+		{/if}
+		{#if $matches("exercising")}
+			<div style="display: flex; flex-flow: row; align-items: baseline;">
+				<h2 style="flex: 1;">{$exercise.current.info.name}</h2>
+				<div style="width: 4em; text-align: right; font-weight: bold;">
+					{num($exercise.is + 1)} of {num($exercise.of)}
+				</div>
+			</div>
+		{/if}
+	</section>
 	<section id="exercise">
 		<!-- <pre>#exercise</pre> -->
 		{#if $matches("ready")}
-			<h2>
-				{$workout.circuits.length} exercises over
-				<span class="duration">
-					{millisToMinutes(
-						$workout.circuits.reduce(
-							(total, exercise) => total + exercise.duration,
-							0
-						)
-						// + 1500 * ($workout.circuits.length - 1)
-					)}
-				</span> minutes
-			</h2>
 			<button on:click={(evt) => send("start")}>Start</button>
 			<table>
 				<thead>
@@ -58,14 +81,6 @@
 		{/if}
 
 		{#if $matches("exercising")}
-			<div
-				style="display: flex; flex-flow: row; align-items: baseline; border-bottom: solid 2px var(--slate);"
-			>
-				<h2 style="flex: 1;">{$exercise.current.info.name}</h2>
-				<div style="width: 4em; text-align: right; font-weight: bold;">
-					{num($exercise.is + 1)} of {num($exercise.of)}
-				</div>
-			</div>
 			<div class="info">
 				<p>{$exercise.current.info.description}</p>
 			</div>
@@ -76,19 +91,6 @@
 				/>
 			</div>
 		{/if}
-
-		{#if $matches("transitioning")}
-			<div>
-				{#if $exercise.next && $exercise.next.info}
-					Up next: {$exercise.next.info.name} ({millisToMinutes(
-						$exercise.next.instance.duration
-					)})
-				{:else}
-					Get ready…
-				{/if}
-			</div>
-		{/if}
-
 		{#if $matches("done")}
 			Done!
 		{/if}
@@ -120,8 +122,10 @@
 		display: grid;
 		grid-gap: 10px;
 		grid-template-columns: 1fr;
+		grid-template-rows: auto 2em auto auto auto auto;
 		grid-template-areas:
 			"header"
+			"title"
 			"timer"
 			"exercise"
 			"nav"
@@ -131,8 +135,10 @@
 	@media (min-width: 900px) {
 		.wrapper {
 			grid-template-columns: repeat(3, 1fr);
+			grid-template-rows: auto 2em auto auto;
 			grid-template-areas:
 				"header nav nav"
+				"title title timer"
 				"exercise exercise timer"
 				"footer  footer  footer";
 		}
@@ -152,12 +158,12 @@
 		grid-area: footer;
 		font-size: 0.8em;
 	}
-
+	section#title {
+		grid-area: title;
+		border-bottom: solid 1px var(--slate);
+	}
 	section#exercise {
 		grid-area: exercise;
-	}
-	.ready h2 {
-		text-align: center;
 	}
 
 	section#timer {
