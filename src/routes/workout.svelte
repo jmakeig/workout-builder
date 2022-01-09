@@ -24,7 +24,10 @@
 	<header><h1>Workout</h1></header>
 	<nav>
 		<!-- <pre>#nav</pre> -->
-		<a href="/config">Build</a>
+		<ol>
+			<li><a href="/workout">Restart</a></li>
+			<li><a href="/config">Build</a></li>
+		</ol>
 	</nav>
 	<section id="title">
 		{#if $matches("ready")}
@@ -64,7 +67,34 @@
 	<section id="exercise">
 		<!-- <pre>#exercise</pre> -->
 		{#if $matches("ready")}
-			<button on:click={(evt) => send("start")}>Start</button>
+			<button on:click={(evt) => send("start")}
+				><svg
+					version="1.1"
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 74.30041956980574 83.47996635773256"
+					height="1em"
+					style="display: inline-block; margin: 0 0.25em -0.15em 0; vertical-align: baseline;"
+				>
+					<g stroke-linecap="round"
+						><g
+							transform="translate(77.52319809290316 16.249737363104657) rotate(89.99999999999994 -40.37298830800023 25.490245815761625)"
+							fill-rule="evenodd"
+							><path
+								d="M-41.46 3.64 L-11.07 51.74 L-69.02 46.57 L-41.69 1.96"
+								stroke="none"
+								stroke-width="0"
+								fill="transparent"
+								fill-rule="evenodd"
+							/><path
+								d="M-39.53 3.28 C-32.39 13.25, -20.69 26.33, -9.82 46.96 M-39.92 -1.66 C-30.25 15.8, -20.29 33.81, -12.84 51.99 M-8.63 50 C-26.31 51.2, -45.93 53.61, -68.54 48.4 M-11.74 51.55 C-31.5 50.86, -51.67 49.04, -69.32 48.49 M-72.11 52.64 C-63.39 42.7, -56.07 29.8, -36.96 2.41 M-68.52 49.79 C-60.08 33.65, -48.01 13.07, -41.98 1.58 M-40.15 0 C-40.15 0, -40.15 0, -40.15 0 M-40.15 0 C-40.15 0, -40.15 0, -40.15 0"
+								stroke="currentColor"
+								stroke-width="7.5"
+								fill="none"
+							/></g
+						></g
+					></svg
+				>Start</button
+			>
 			<table>
 				<thead>
 					<tr><th>Exercise</th><th style="width: 4em;">Duration</th></tr>
@@ -154,6 +184,16 @@
 	nav {
 		grid-area: nav;
 	}
+	nav ol {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+	nav ol li {
+		display: inline-block;
+		padding: 0;
+		margin: 0 1em;
+	}
 	footer {
 		grid-area: footer;
 		font-size: 0.8em;
@@ -169,7 +209,19 @@
 	section#timer {
 		grid-area: timer;
 	}
-
+	button {
+		display: block;
+		margin: 1em auto;
+		font-size: 2.25em;
+		padding: 0.5em 1.25em;
+		color: #bbf7d0;
+		background: var(--green);
+	}
+	button:hover {
+		background: #15803d;
+		color: #f0fdf4;
+		box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+	}
 	table {
 		margin: 1em 0;
 		width: 100%;
