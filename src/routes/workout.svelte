@@ -1,10 +1,11 @@
 <script>
 	import { useWorkoutMachine } from "$lib/workoutStore";
 	const { workout, exercise, timer, matches, send } = useWorkoutMachine();
-	
+
 	send("initialize");
 
 	import Timer from "./_components/timer.svelte";
+	import ExerciseImage from "./_components/ExerciseImage.svelte";
 
 	import { num, millisToMinutes } from "$lib/util";
 </script>
@@ -67,6 +68,12 @@
 			</div>
 			<div class="info">
 				<p>{$exercise.current.info.description}</p>
+			</div>
+			<div class="illustration">
+				<ExerciseImage
+					id={$exercise.current.instance.exercise}
+					alt={$exercise.current.info.name}
+				/>
 			</div>
 		{/if}
 
