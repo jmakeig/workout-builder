@@ -7,7 +7,7 @@
 	import Timer from "./_components/timer.svelte";
 	import ExerciseImage from "./_components/ExerciseImage.svelte";
 
-	import { num, millisToMinutes } from "$lib/util";
+	import { num, millisToMinutes, formatTime } from "$lib/util";
 </script>
 
 <svelte:head>
@@ -34,14 +34,12 @@
 			<h2 style="display: flex;">
 				{$workout.circuits.length} exercises over
 
-				{millisToMinutes(
+				{formatTime(
 					$workout.circuits.reduce(
 						(total, exercise) => total + exercise.duration,
 						0
 					)
-					// + 1500 * ($workout.circuits.length - 1)
 				)}
-				minutes
 			</h2>
 		{/if}
 		{#if $matches("transitioning")}
