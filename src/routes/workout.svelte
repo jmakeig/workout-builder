@@ -7,7 +7,7 @@
 	import Timer from "./_components/timer.svelte";
 	import ExerciseImage from "./_components/ExerciseImage.svelte";
 
-	import { num, millisToMinutes, formatTime } from "$lib/util";
+	import { num, millisToMinutes, formatDuration } from "$lib/util";
 </script>
 
 <svelte:head>
@@ -32,9 +32,9 @@
 	<section id="title">
 		{#if $matches("ready")}
 			<h2 style="display: flex;">
-				{$workout.circuits.length} exercises over
+				{num($workout.circuits.length)} exercises over
 
-				{formatTime(
+				{formatDuration(
 					$workout.circuits.reduce(
 						(total, exercise) => total + exercise.duration,
 						0
@@ -45,7 +45,7 @@
 		{#if $matches("transitioning")}
 			<h2>
 				{#if $exercise.next && $exercise.next.info}
-					Up next: {$exercise.next.info.name} ({millisToMinutes(
+					Up next: {$exercise.next.info.name} ({formatDuration(
 						$exercise.next.instance.duration
 					)})
 				{:else}

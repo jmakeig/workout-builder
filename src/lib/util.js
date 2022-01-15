@@ -10,14 +10,14 @@ export function num(number) {
 }
 
 export function millisToMinutes(duration) {
-	const values = formatTime(duration).values;
+	const values = formatDuration(duration).values;
 	return [
 		values[2].toFixed(0).padStart(2, "0"),
 		values[3].toFixed(0).padStart(2, "0")
 	].join(":");
 }
 
-export function formatTime(duration) {
+export function formatDuration(duration) {
 	//return [(duration / 1000).toFixed(0), "fixmes"];
 	const s = 1000;
 	const m = s * 60;
@@ -37,8 +37,12 @@ export function formatTime(duration) {
 		values: dhms,
 		toString() {
 			return this.values.reduce((str, item, i) => {
-				if (item > 1) return [str, item, plural(labels[i])].join(" ");
-				if (item > 0) return [str, item, labels[i]].join(" ");
+				if (Math.abs(item) > 1) {
+					return [str, num(item), plural(labels[i])].join(" ");
+				}
+				if (Math.abs(item) > 0) {
+					return [str, num(item), labels[i]].join(" ");
+				}
 				return str;
 			}, "");
 		}
